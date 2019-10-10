@@ -1,9 +1,9 @@
 import config from './config.js';
 import Grid from './Grid.js';
-import MyRobots from './MyRobots.js';
-import EnemyRobots from './EnemyRobots.js';
-import MyRadars from './MyRadars.js';
-import MyTraps from './MyTraps.js';
+import MyRobots from './Directors/MyRobots.js';
+import EnemyRobots from './Directors/EnemyRobots.js';
+import MyRadars from './Directors/MyRadars.js';
+import MyTraps from './Directors/MyTraps.js';
 
 class Game {
 	constructor() {

@@ -1,4 +1,4 @@
-import config from './config.js';
+import config from '../config.js';
 import ItemDirector from './ItemDirector.js';
 
 class MyRadars extends ItemDirector {

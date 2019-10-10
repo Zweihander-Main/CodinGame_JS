@@ -1,4 +1,4 @@
-import config from './config.js';
+import config from '../config.js';
 import EntityDirector from './EntityDirector';
 
 class MyRobots extends EntityDirector {

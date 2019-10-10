@@ -8,7 +8,7 @@ class Cell extends Pos {
 		this.oreLatched = 0;
 		this.myHole = false;
 		this.probOre = probOre;
-		this.hadOre = '?';
+		this.hadOre = '?'; // true if yes, false if no, ? if unknown
 		this.oreGiven = 0;
 	}
 

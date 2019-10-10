@@ -1,4 +1,4 @@
-import config from './config.js';
+import config from '../config.js';
 import EntityDirector from './EntityDirector.js';
 
 class ItemDirector extends EntityDirector {

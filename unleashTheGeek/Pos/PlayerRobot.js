@@ -1,5 +1,5 @@
 import Robot from './Robot.js';
-import config from './config.js';
+import config from '../config.js';
 
 class PlayerRobot extends Robot {
 	constructor(x, y, type, id, item, gameInstance) {

@@ -1,7 +1,7 @@
-import config from './config.js';
-import PlayerRobot from './PlayerRobot.js';
-import Robot from './Robot.js';
-import Entity from './Entity.js';
+import config from '../config.js';
+import Entity from '../Pos/Entity.js';
+import PlayerRobot from '../Pos/PlayerRobot.js';
+import Robot from '../Pos/Robot.js';
 
 class EntityDirector {
 	constructor(gameInstance) {

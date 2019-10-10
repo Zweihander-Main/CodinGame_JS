@@ -1,5 +1,5 @@
 import config from './config.js';
-import Cell from './Cell.js';
+import Cell from './Pos/Cell.js';
 
 class Grid {
 	constructor() {
@@ -78,7 +78,7 @@ class Grid {
 		return returnArray;
 	}
 
-	get numRadarLessCells() {
+	get numCellsWithoutRadar() {
 		return this.cells.filter((cell) => {
 			return cell.ore === '?' && cell.x !== 0;
 		}).length;
