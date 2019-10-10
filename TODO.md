@@ -1,35 +1,11 @@
-Should get radar before searching further but need a way to latch it properly
-Traps can be random
-Are radar and traps taken off?
-Track holes we dug, if hole hasn't been dug by us, it's not safe
-
-Closest idle robot to HQ should return for radar
-Return for trap
-Traps should be buried with some kind of algo -- further away
-
-Check for radars using given data rather than saving
-
 Track opp movements and get nervous if they've been in a spot?
-Do things one thing closer to hq -- figure out closest path?
 
 Bury traps in ore>0 -- build out requesting system around this
-Bury radar if ore='?'
-
 Trap: only plant in enemy holes with ore in them
-
-Anywhere good on map for radar method
-
-Goto ore stuck on
 
 Make sure search doesn't look for already existing hole
 
-https://www.codingame.com/forum/t/unleash-the-geek-amadeusium-distribution/132188
-
 Track enemies and when they make holes -- can figure out if hole is first since coming from HQ
-
-Likely need some hard refactor to be able to implement the really good stuff
-
--- Suggest move first to max -- already implemented but there is more to be done for search moves
 
 wall: https://www.codingame.com/replay/413775813
 
@@ -37,14 +13,23 @@ Movement should be optimized to 4 spaces
 
 Trap/radar cooldown is 5 turns, can be optimized for coming back
 
-Track my radars to place them there again -- track intended place
+Change to different mined hole if next to or on top of enemy
+Remember to integrate with movement memory
 
-New idea:
-Create score for every cell that it can move to - Veins are clustered so score should increase for the 5 cells around it https://github.com/CodinGameCommunity/UnleashTheGeek/blob/b8b955e71ce73ba41854db4ccbce7ae97283570d/src/main/java/com/codingame/utg2019/Game.java
+Add in go to hq for radar modifier
+
+Verify http://chat.codingame.com/pastebin/028dddfe-88aa-47ab-8a2e-172a26438253 and http://chat.codingame.com/pastebin/1edd7d68-0033-4762-87ff-cb526433e189
 
 Pressing:
 
-bug: goto search stop
+"my bot objects have a field containing their current task
+when it's complete, they fetch a new one" -- is that a better way to do it? -- queue
+
+Radar should stop placement after algo point, not hard coded -- perhaps add in no need clause as well?
+
+Two with radar going to the same spot -- need last minute check or neg if too close or latch for radar or something
+
+Multi ore latching -- better implementation or get rid of move latching -- maybe ok now? Need debugging
 
 No need for memory just move and dig as needed
 As in dig 20,8 will figure out the best path
@@ -54,12 +39,14 @@ Confirm thinking is right and movement isn't being wasted -- should be right
 
 Movement (ignoring HQ) should check 4 closest cardinal directions of target, then distance between robot and all 4 of them selecting the shortest
 
-Intent dig target should be stored in robot
-
-Remember to integrate with movement memory
+Intent dig target should be stored in robot -- queue?
 
 If distance equal, prefer left hand side
 
-Max call stack still being reached
-
-Rank 621 > Rank 113 (30.05) > (Last night final -- 151, 28.70) 78, 30.01
+1. Rank 621
+2. Rank 113, 30.05
+3. 78, 30.01-28.73
+4. 128, 28
+5. 116, 28.87
+6. (With traps) Yeah baby 1 38 -- Silver: Rank 178 20
+7.

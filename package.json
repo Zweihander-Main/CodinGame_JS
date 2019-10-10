@@ -8,6 +8,11 @@
 	"author": "Zweihänder",
 	"private": true,
 	"license": "MIT",
+	"scripts": {
+		"test": "jest",
+		"build": "webpack",
+		"watch": "webpack --watch"
+	},
 	"jest": {
 		"transform": {
 			"^.+\\.jsx?$": "babel-jest"
@@ -128,6 +133,8 @@
 		"gulp-debug": "^4.0.0",
 		"jest": "^24.7.1",
 		"jest-mock-console": "^0.4.2",
-		"prettier": "^1.17.0"
+		"prettier": "^1.17.0",
+		"webpack": "^4.41.0",
+		"webpack-cli": "^3.3.9"
 	}
 }
