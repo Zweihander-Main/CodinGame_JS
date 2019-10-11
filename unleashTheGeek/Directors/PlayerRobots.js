@@ -43,9 +43,11 @@ class PlayerRobots extends RobotDirector {
 			returnObject.neg += 1000;
 			returnObject.negReasons.push('Item Present');
 		}
-		if (cell.ore === '?' && cell.numMoveLatched > 0) {
+		if (robot.hasItem && cell.numDigLatched !== 0) {
 			returnObject.neg += 100;
-			returnObject.negReasons.push('Move Latched Cell');
+			returnObject.negReasons.push(
+				'Item May Be Destroyed By Another Robot'
+			);
 		}
 		if (cell.ore !== '?' && cell.numDigLatched >= cell.ore) {
 			returnObject.neg += 100;

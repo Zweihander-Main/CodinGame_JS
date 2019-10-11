@@ -1,3 +1,7 @@
+If you have an item like radar/trap, make sure you totally latch the cell off
+If you re-evaluate each turn, don't forget to break latches
+You're getting creamed if there is a vein in the early half of the map
+
 You can figure out where opp radar and bombs are placed
 Target radars, avoid bombs
 

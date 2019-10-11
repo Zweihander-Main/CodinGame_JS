@@ -111,7 +111,6 @@ class PlayerRobot extends Robot {
 
 	moveToCell(cell, message) {
 		if (cell.x !== 0) {
-			cell.addMoveLatch(this);
 			cell.addDigLatch(this);
 		}
 		return this.setCommandToExecute(
@@ -153,7 +152,6 @@ class PlayerRobot extends Robot {
 		} else if (this.hasTrap) {
 			newCell.trap = true;
 		}
-		newCell.addMoveLatch(this);
 		newCell.addDigLatch(this);
 		newCell.myHole = true;
 		return this.setCommandToExecute(

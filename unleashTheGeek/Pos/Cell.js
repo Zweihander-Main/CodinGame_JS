@@ -2,8 +2,9 @@ import config from '../config.js';
 import Pos from './Pos.js';
 
 class Cell extends Pos {
-	constructor(ore, hole, x, y, probOre) {
+	constructor(ore, hole, x, y, probOre, grid) {
 		super(x, y);
+		this._grid = grid;
 		this.update(ore, hole); //this.ore, this.hole
 		this.myHole = false;
 		this.radar = false;
@@ -17,7 +18,6 @@ class Cell extends Pos {
 			return startingProb;
 		};
 
-		this._moveLatchedArray = [];
 		this._digLatchedArray = [];
 	}
 
@@ -29,10 +29,6 @@ class Cell extends Pos {
 		return this.hole === config.HOLE && !this.myHole;
 	}
 
-	get numMoveLatched() {
-		return this._moveLatchedArray.length;
-	}
-
 	get numDigLatched() {
 		return this._digLatchedArray.length;
 	}
@@ -41,12 +37,14 @@ class Cell extends Pos {
 		return this._oreMinedByMe + this._oreMinedByEnemy;
 	}
 
-	addMoveLatch(robot) {
-		this._moveLatchedArray.push(robot);
-	}
-
 	addDigLatch(robot) {
-		this._digLatchedArray.push(robot);
+		if (robot.hasItem) {
+			this._digLatchedArray = new Array(config.MAP_ORE_IN_CELL_MAX).fill(
+				robot
+			);
+		} else {
+			this._digLatchedArray.push(robot);
+		}
 	}
 
 	_dug(gaveOre) {
@@ -71,7 +69,6 @@ class Cell extends Pos {
 	}
 
 	turnStart() {
-		this._moveLatchedArray = [];
 		this._digLatchedArray = [];
 	}
 

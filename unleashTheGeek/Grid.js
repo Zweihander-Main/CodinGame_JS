@@ -16,7 +16,8 @@ class Grid {
 					0,
 					x,
 					y,
-					config.PROB_ORE[index]
+					config.PROB_ORE[index],
+					this
 				);
 			}
 		}
