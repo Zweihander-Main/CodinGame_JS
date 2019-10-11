@@ -1,12 +1,9 @@
-import config from '../config.js';
 import Entity from '../Pos/Entity.js';
-import PlayerRobot from '../Pos/PlayerRobot.js';
-import Robot from '../Pos/Robot.js';
 
 class EntityDirector {
-	constructor(gameInstance) {
-		this.gameInstance = gameInstance;
-		this.reset();
+	constructor(game) {
+		this._game = game;
+		this.reset(); // this.entities[]
 	}
 
 	reset() {
@@ -19,31 +16,31 @@ class EntityDirector {
 		});
 	}
 
+	createNewEntity(x, y, type, id) {
+		return new Entity(x, y, type, id);
+	}
+
+	updateEntityData(entity, x, y, item) {
+		if (entity.x !== x || entity.y !== y) {
+			entity.x = x;
+			entity.y = y;
+			entity.updateCell(this._game.grid.getCell(x, y));
+		} else if (entity.currentCell === null) {
+			entity.updateCell(this._game.grid.getCell(x, y));
+		}
+		if (item) {
+			entity.updateItem(item);
+		}
+	}
+
 	update(x, y, type, id, item) {
 		let found = this.getEntity(id);
 		if (found) {
-			found.x = x;
-			found.y = y;
-			if (item) {
-				found.item = item;
-			}
+			this.updateEntityData(found, x, y, item);
 		} else {
-			let toPush;
-			if (type === config.ROBOT_ALLY) {
-				toPush = new PlayerRobot(
-					x,
-					y,
-					type,
-					id,
-					item,
-					this.gameInstance
-				);
-			} else if (type === config.ROBOT_ENEMY) {
-				toPush = new Robot(x, y, type, id, this.gameInstance);
-			} else {
-				toPush = new Entity(x, y, type, id, this.gameInstance);
-			}
-			this.entities.push(toPush);
+			let newEntity = this.createNewEntity(x, y, type, id, item);
+			this.entities.push(newEntity);
+			this.updateEntityData(newEntity, x, y, item);
 		}
 	}
 

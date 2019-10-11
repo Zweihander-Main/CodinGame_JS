@@ -1,21 +1,13 @@
 import ItemDirector from './ItemDirector.js';
 
 class MyTraps extends ItemDirector {
-	constructor(gameInstance) {
-		super(gameInstance);
-	}
-
-	turnStart() {
-		super.turnStart();
-	}
-
-	turnOver() {
-		super.turnOver();
+	constructor(game, enableTraps) {
+		super(game);
+		this.enableTraps = enableTraps;
 	}
 
 	shouldRequestOrTake(robot) {
-		return super.shouldRequestOrTake(robot);
-		// return false;
+		return this.enableTraps && super.shouldRequestOrTake(robot);
 	}
 }
 

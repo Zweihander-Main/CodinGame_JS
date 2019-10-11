@@ -1,9 +1,8 @@
-import config from '../config.js';
 import EntityDirector from './EntityDirector.js';
 
 class ItemDirector extends EntityDirector {
-	constructor(gameInstance) {
-		super(gameInstance);
+	constructor(game) {
+		super(game);
 		this.itemFreezeLatch = false;
 		this.cooldown = 0;
 	}
@@ -14,11 +13,23 @@ class ItemDirector extends EntityDirector {
 
 	turnOver() {
 		super.turnOver();
-		if (
-			this.itemFreezeLatch &&
-			this.itemFreezeLatch.item === config.RADAR
-		) {
+		if (this.itemFreezeLatch && this.itemFreezeLatch.hasRadarOrTrap) {
 			this.itemFreezeLatch = false;
+		}
+	}
+
+	updateCooldown(cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	// ask,remote,take
+	requestItem(requestType, requester) {
+		if (requestType === 'ask') {
+			return this.shouldRequestOrTake(requester);
+		} else if (requestType === 'remote') {
+			return this.requestRemotely(requester);
+		} else {
+			return this.requestAndTake(requester);
 		}
 	}
 
@@ -44,10 +55,6 @@ class ItemDirector extends EntityDirector {
 
 	isLatchedByGivenRobot(robot) {
 		return this.itemFreezeLatch && this.itemFreezeLatch.id === robot.id;
-	}
-
-	updateCooldown(cooldown) {
-		this.cooldown = cooldown;
 	}
 }
 

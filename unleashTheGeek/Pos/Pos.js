@@ -3,10 +3,16 @@ class Pos {
 		this.x = x;
 		this.y = y;
 	}
+
 	distance(pos) {
 		return Math.abs(this.x - pos.x) + Math.abs(this.y - pos.y);
 	}
-	get distanceToHQ() {
+
+	isInHQ() {
+		return this.x === 0;
+	}
+
+	distanceToHQ() {
 		return this.x;
 	}
 }

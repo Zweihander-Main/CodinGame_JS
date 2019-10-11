@@ -61,9 +61,7 @@
 			"no-mixed-spaces-and-tabs": [
 				"error",
 				"smart-tabs"
-			],
-			"no-unused-vars": "off",
-			"no-constant-condition": "off"
+			]
 		},
 		"globals": {
 			"readline": true

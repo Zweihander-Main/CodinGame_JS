@@ -1,3 +1,6 @@
+You can figure out where opp radar and bombs are placed
+Target radars, avoid bombs
+
 Track opp movements and get nervous if they've been in a spot?
 
 Bury traps in ore>0 -- build out requesting system around this

@@ -4,6 +4,7 @@ import Cell from './Pos/Cell.js';
 class Grid {
 	constructor() {
 		this.cells = [];
+		this.init();
 	}
 
 	init() {
@@ -11,7 +12,7 @@ class Grid {
 			for (let x = 0; x < config.MAP_WIDTH; x++) {
 				let index = x + config.MAP_WIDTH * y;
 				this.cells[index] = new Cell(
-					0,
+					'?',
 					0,
 					x,
 					y,
@@ -21,67 +22,61 @@ class Grid {
 		}
 	}
 
-	turnStart() {}
-
-	turnOver() {
+	turnStart() {
 		this.cells.forEach((cell) => {
-			if (cell.moveLatched) {
-				cell.moveLatched = false;
-			}
-			if (cell.oreLatched > 0) {
-				cell.oreLatched = 0;
-			}
+			cell.turnStart();
 		});
 	}
 
+	turnOver() {}
+
 	getCell(x, y) {
-		if (x < config.MAP_WIDTH && y < config.MAP_HEIGHT && x >= 0 && y >= 0) {
-			return this.cells[x + config.MAP_WIDTH * y];
-		}
-		return null;
+		return this.cells[x + config.MAP_WIDTH * y];
 	}
 
-	generateSingleMoveArray(
-		pos,
-		countInnerCell,
-		ignoreHQ = true,
-		extraPadding = 0
-	) {
+	getCellsWithinOneMove(center, includeCenter) {
 		let returnArray = [];
-		if (countInnerCell) {
-			returnArray.push(pos);
-		}
-		let x = pos.x;
-		let y = pos.y;
+		let x = center.x;
+		let y = center.y;
 		for (let i = 0, len = config.OPTIMIZED_DIAMOND.length; i < len; i++) {
 			let newX = x + config.OPTIMIZED_DIAMOND[i].x;
 			let newY = y + config.OPTIMIZED_DIAMOND[i].y;
-			let dropCell = false;
-			if (ignoreHQ && newX === 0) {
-				dropCell = true;
-			}
-			if (
-				!(
-					newX > extraPadding - 1 &&
-					newX < config.MAP_WIDTH - extraPadding &&
-					newY > extraPadding - 1 &&
-					newY < config.MAP_HEIGHT - extraPadding
-				)
-			) {
-				dropCell = true;
-			}
-			let newCell = this.cells[newX + config.MAP_WIDTH * newY];
-			if (newCell && !dropCell) {
+			let newCell = this.getCell(newX, newY);
+			if (newCell) {
 				returnArray.push(newCell);
 			}
+		}
+		if (includeCenter) {
+			returnArray.push(center);
 		}
 		return returnArray;
 	}
 
-	get numCellsWithoutRadar() {
+	filterOutCellsInHQ(cellArray) {
+		return cellArray.filter((cell) => {
+			return !cell.isInHQ();
+		});
+	}
+
+	filterOutCellsNearMapEdge(cellArray, distance) {
+		return cellArray.filter((cell) => {
+			return (
+				cell.x > distance &&
+				cell.x < config.MAP_WIDTH - distance &&
+				cell.y > distance &&
+				cell.y < config.MAP_HEIGHT - distance
+			);
+		});
+	}
+
+	getCellsWithoutRadar() {
 		return this.cells.filter((cell) => {
 			return cell.ore === '?' && cell.x !== 0;
-		}).length;
+		});
+	}
+
+	get numCellsWithoutRadar() {
+		return this.getCellsWithoutRadar().length;
 	}
 }
 

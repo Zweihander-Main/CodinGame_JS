@@ -1,3 +1,4 @@
+/*eslint no-constant-condition: ["error", { "checkLoops": false }]*/
 import config from './config.js';
 import Game from './Game.js';
 config.generate();
@@ -21,7 +22,6 @@ while (true) {
 	for (let i = 0, len = game.entityCount; i < len; i++) {
 		game.updateEntityData(...readline().split(' '));
 	}
-
 	game.turnStart();
 	game.myRobots.entities.forEach((robot) => {
 		if (robot.commandToExecute.command !== null) {

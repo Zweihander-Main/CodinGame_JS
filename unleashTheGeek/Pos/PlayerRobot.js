@@ -2,29 +2,61 @@ import Robot from './Robot.js';
 import config from '../config.js';
 
 class PlayerRobot extends Robot {
-	constructor(x, y, type, id, item, gameInstance) {
-		super(x, y, type, id, gameInstance);
-		this.item = item;
-		this.destinationMemory = { x: x, y: y, message: '' };
+	constructor(x, y, type, id, item, director) {
+		super(x, y, type, id, item, director);
+		this.destinationMemory = { x: this.x, y: this.y, message: '' };
 		this.resetAnticipatedScore();
+		this.commandToExecute = {};
+		this.clearCommandToExecute();
+		this.commandHistory = [];
+	}
+
+	get memArrived() {
+		return (
+			this.destinationMemory.x === this.x &&
+			this.destinationMemory.y === this.y
+		);
 	}
 
 	turnStart() {
 		super.turnStart();
 		if (
-			this.historyExecutedCommands.length > 0 &&
-			this.historyExecutedCommands[
-				this.historyExecutedCommands.length - 1
-			].command === this.consoleDig
+			this.commandHistory.length > 0 &&
+			this.commandHistory[this.commandHistory.length - 1].command ===
+				this.consoleDig
 		) {
-			let currentCell = this.currentCell;
-			if (this.item === config.ORE) {
-				currentCell.hadOre = true;
-				currentCell.oreGiven++;
+			if (this.hasOre) {
+				this.currentCell.dugByMe(true);
 			} else {
-				currentCell.hadOre = false;
+				this.currentCell.dugByMe(false);
 			}
 		}
+	}
+
+	setCommandToExecute(command, storedThis, ...argsArray) {
+		this.commandToExecute = {
+			command: command,
+			storedThis: storedThis,
+			params: argsArray,
+		};
+		this.commandHistory.push({
+			command: command,
+			params: argsArray,
+		});
+	}
+
+	executeCommand() {
+		let boundFunc = this.commandToExecute.command.bind(
+			this.commandToExecute.storedThis,
+			...this.commandToExecute.params
+		);
+		return boundFunc();
+	}
+
+	clearCommandToExecute() {
+		this.commandToExecute.command = null;
+		this.commandToExecute.storedThis = null;
+		this.commandToExecute.params = [];
 	}
 
 	consoleMove(x, y, message = '') {
@@ -52,20 +84,13 @@ class PlayerRobot extends Robot {
 		}
 	}
 
-	get memArrived() {
-		return (
-			this.destinationMemory.x === this.x &&
-			this.destinationMemory.y === this.y
-		);
-	}
-
 	requestRadarRemotely() {
-		this.gameInstance.myRadars.requestRemotely(this);
+		this.director.requestItem(config.RADAR, 'remote', this);
 		return this.returnToHQ();
 	}
 
 	takeRadar(message) {
-		this.gameInstance.myRadars.requestAndTake(this);
+		this.director.requestItem(config.RADAR, 'take', this);
 		return this.setCommandToExecute(
 			this.consoleRequest,
 			this,
@@ -75,7 +100,7 @@ class PlayerRobot extends Robot {
 	}
 
 	takeTrap(message) {
-		this.gameInstance.myTraps.requestAndTake(this);
+		this.director.requestItem(config.TRAP, 'take', this);
 		return this.setCommandToExecute(
 			this.consoleRequest,
 			this,
@@ -86,8 +111,8 @@ class PlayerRobot extends Robot {
 
 	moveToCell(cell, message) {
 		if (cell.x !== 0) {
-			cell.moveLatched = true;
-			cell.digLatched++;
+			cell.addMoveLatch(this);
+			cell.addDigLatch(this);
 		}
 		return this.setCommandToExecute(
 			this.consoleMove,
@@ -99,7 +124,7 @@ class PlayerRobot extends Robot {
 	}
 
 	memMove() {
-		let newCell = this.gameInstance.grid.getCell(
+		let newCell = this.director.getCell(
 			this.destinationMemory.x,
 			this.destinationMemory.y
 		);
@@ -122,14 +147,14 @@ class PlayerRobot extends Robot {
 
 	digCell(message) {
 		this.resetAnticipatedScore();
-		let newCell = this.gameInstance.grid.getCell(this.x, this.y);
-		if (this.item === config.RADAR) {
+		let newCell = this.director.getCell(this.x, this.y);
+		if (this.hasRadar) {
 			newCell.radar = true;
-		} else if (this.item === config.TRAP) {
+		} else if (this.hasTrap) {
 			newCell.trap = true;
 		}
-		newCell.moveLatched = true;
-		newCell.digLatched++;
+		newCell.addMoveLatch(this);
+		newCell.addDigLatch(this);
 		newCell.myHole = true;
 		return this.setCommandToExecute(
 			this.consoleDig,
@@ -140,133 +165,13 @@ class PlayerRobot extends Robot {
 		);
 	}
 
-	calculateScore(cell, moves, distance, radarLocScore) {
-		let returnObject = {
-			pos: 0,
-			neg: 0,
-			posReasons: [],
-			negReasons: [],
-		};
-		const distanceToHQ = cell.distanceToHQ;
-		const totalMoves = moves + this.movesToCoverDistance(distanceToHQ);
-		if (cell.x === 0) {
-			returnObject.neg += 1000;
-			returnObject.negReasons.push('HQ');
-		}
-		if (cell.radar || cell.trap) {
-			returnObject.neg += 1000;
-			returnObject.negReasons.push('Item Present');
-		}
-		if (cell.ore === '?' && cell.moveLatched === true) {
-			returnObject.neg += 100;
-			returnObject.negReasons.push('Move Latched Cell');
-		}
-		if (cell.ore !== '?' && cell.digLatched >= cell.ore) {
-			returnObject.neg += 100;
-			returnObject.negReasons.push('Dig Latched Cell');
-		}
-		if (cell.hole === config.HOLE && cell.myHole !== true) {
-			returnObject.neg += 100;
-			returnObject.negReasons.push('Enemy Hole');
-		}
-		if (cell.hole === config.HOLE && cell.ore === '?') {
-			returnObject.neg += 100;
-			returnObject.negReasons.push('Already dug unknown hole'); //TODO track ore extracted
-		}
-		if (cell.ore === 0) {
-			returnObject.neg += 100;
-			returnObject.negReasons.push('Exhausted vein');
-		}
-
-		if (this.item === config.RADAR) {
-			returnObject.pos += radarLocScore;
-			returnObject.posReasons.push(
-				`Radar placement score: ${radarLocScore}`
-			);
-		}
-		if (cell.ore === '?') {
-			returnObject.pos += cell.probOre / totalMoves;
-			returnObject.posReasons.push(
-				`%${cell.probOre} prob in ${totalMoves} totalMoves`
-			);
-		} else if (cell.ore > 0) {
-			returnObject.pos += 100 / totalMoves;
-			returnObject.posReasons.push(
-				`${cell.ore} ore in ${totalMoves} totalMoves`
-			);
-		}
-		returnObject.score = returnObject.pos - returnObject.neg;
-		return returnObject;
-	}
-
-	buildValueGraph(pos) {
-		let valueGraph = [];
-		for (
-			let i = 0, len = this.gameInstance.grid.cells.length;
-			i < len;
-			i++
-		) {
-			let valueGraphObject = {
-				cell: this.gameInstance.grid.cells[i],
-			};
-			valueGraphObject.distance = valueGraphObject.cell.distance(pos);
-			valueGraphObject.moves = this.movesToCoverDistance(
-				valueGraphObject.distance
-			);
-			if (valueGraphObject.moves === 0) {
-				valueGraphObject.moves = 1;
-			}
-			let radarLocScore;
-			if (this.item === config.RADAR) {
-				radarLocScore = this.gameInstance.myRadars.radarLocScore(
-					valueGraphObject.cell
-				);
-			}
-			valueGraphObject.scoreObject = this.calculateScore(
-				valueGraphObject.cell,
-				valueGraphObject.moves,
-				valueGraphObject.distance,
-				radarLocScore
-			);
-			valueGraph.push(valueGraphObject);
-		}
-		valueGraph.sort((a, b) => {
-			return b.scoreObject.score - a.scoreObject.score;
-		});
-		console.error(
-			`Pos ${pos.x},${pos.y} resulted in ${valueGraph[0].cell.x},${
-				valueGraph[0].cell.y
-			} with score of ${valueGraph[0].scoreObject.score}, ${
-				valueGraph[0].moves
-			} moves, (${valueGraph[0].scoreObject.posReasons.join(
-				','
-			)}) positive reasons (score: ${
-				valueGraph[0].scoreObject.pos
-			}), and (${valueGraph[0].scoreObject.negReasons.join(
-				','
-			)}) negative reasons (score: ${valueGraph[0].scoreObject.neg}).`
-		);
-		return valueGraph[0];
-	}
-
-	determineBestAction() {
-		let currentCellScore = this.calculateScore(this.currentCell, 1, 0);
-		if (currentCellScore.neg === this.anticipatedNegScore) {
-			return this.digCell('DIG:BEST');
-		} else {
-			let bestCellData = this.buildValueGraph(this.currentCell);
-			this.anticipatedNegScore = bestCellData.scoreObject.neg;
-			return this.moveToCell(bestCellData.cell, 'MOVE:BEST');
-		}
-	}
-
 	returnToHQ(message) {
 		this.resetAnticipatedScore();
 		return this.moveToCell({ x: 0, y: this.y }, message);
 	}
 
 	resetAnticipatedScore() {
-		this.anticipatedNegScore = 10000;
+		this.anticipatedNegScore = Infinity;
 	}
 
 	declareDead() {

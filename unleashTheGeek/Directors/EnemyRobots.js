@@ -1,16 +1,13 @@
-import EntityDirector from './EntityDirector.js';
+import RobotDirector from './RobotDirector.js';
+import EnemyRobot from '../Pos/EnemyRobot.js';
 
-class EnemyRobots extends EntityDirector {
-	constructor(gameInstance) {
-		super(gameInstance);
+class EnemyRobots extends RobotDirector {
+	constructor(game) {
+		super(game);
 	}
 
-	turnStart() {
-		super.turnStart();
-	}
-
-	turnOver() {
-		super.turnOver();
+	createNewEntity(x, y, type, id, item) {
+		return new EnemyRobot(x, y, type, id, item, this);
 	}
 }
 

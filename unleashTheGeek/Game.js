@@ -1,6 +1,6 @@
 import config from './config.js';
 import Grid from './Grid.js';
-import MyRobots from './Directors/MyRobots.js';
+import MyRobots from './Directors/PlayerRobots.js';
 import EnemyRobots from './Directors/EnemyRobots.js';
 import MyRadars from './Directors/MyRadars.js';
 import MyTraps from './Directors/MyTraps.js';
@@ -8,7 +8,6 @@ import MyTraps from './Directors/MyTraps.js';
 class Game {
 	constructor() {
 		this.grid = new Grid();
-		this.grid.init();
 		this.myScore = 0;
 		this.enemyScore = 0;
 		this.turn = 0;
@@ -16,7 +15,7 @@ class Game {
 		this.myRobots = new MyRobots(this);
 		this.enemyRobots = new EnemyRobots(this);
 		this.myRadars = new MyRadars(this);
-		this.myTraps = new MyTraps(this);
+		this.myTraps = new MyTraps(this, config.ENABLE_TRAPS);
 	}
 
 	turnStart() {
@@ -38,7 +37,7 @@ class Game {
 
 	updateScoreData(myScore, enemyScore) {
 		this.myScore = parseInt(myScore, 10);
-		this.enemyScore = parseInt(myScore, 10);
+		this.enemyScore = parseInt(enemyScore, 10);
 	}
 
 	updateCell(x, y, ore, hole) {
