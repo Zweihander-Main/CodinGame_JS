@@ -33,7 +33,11 @@ class Grid {
 		});
 	}
 
-	turnOver() {}
+	turnOver() {
+		this.cells.forEach((cell) => {
+			cell.turnOver();
+		});
+	}
 
 	getCell(x, y) {
 		if (x < config.MAP_WIDTH && y < config.MAP_HEIGHT && x >= 0 && y >= 0) {

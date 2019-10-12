@@ -4,7 +4,7 @@ import Pos from './Pos.js';
 class Entity extends Pos {
 	constructor(x, y, type, id) {
 		super(x, y);
-		this.updateCell(null);
+		this.updateCell(null); //this.currentCell
 		const _id = id;
 		const _type = type;
 

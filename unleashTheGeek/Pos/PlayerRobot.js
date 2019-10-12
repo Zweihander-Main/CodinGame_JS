@@ -147,7 +147,6 @@ class PlayerRobot extends Robot {
 
 	digCell(cell, message) {
 		this.resetAnticipatedScore();
-		// this.director.placingItem(this.item,cell);
 		if (this.hasRadar) {
 			cell.radar = true;
 		} else if (this.hasTrap) {

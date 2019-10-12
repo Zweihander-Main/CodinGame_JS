@@ -24,9 +24,13 @@ class EntityDirector {
 		if (entity.x !== x || entity.y !== y) {
 			entity.x = x;
 			entity.y = y;
-			entity.updateCell(this._game.grid.getCell(x, y));
+			let cell = this._game.grid.getCell(x, y);
+			entity.updateCell(cell);
+			cell.updateEntityData(entity);
 		} else if (entity.currentCell === null) {
-			entity.updateCell(this._game.grid.getCell(x, y));
+			let cell = this._game.grid.getCell(x, y);
+			entity.updateCell(cell);
+			cell.updateEntityData(entity);
 		}
 		if (item) {
 			entity.updateItem(item);

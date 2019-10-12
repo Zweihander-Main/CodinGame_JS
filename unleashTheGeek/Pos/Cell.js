@@ -7,11 +7,9 @@ class Cell extends Pos {
 		this._grid = grid;
 		this.update(ore, hole); //this.ore, this.hole
 		this.myHole = false;
+		this._oreGiven = 0;
 		this.radar = false;
 		this.trap = false;
-		// this.enemyRadar = false;
-		// this.enemyTrap = false;
-		this._oreGiven = 0;
 
 		const startingProb = probOre;
 		this.getStartingProb = () => {
@@ -19,6 +17,7 @@ class Cell extends Pos {
 		};
 
 		this._digLatchedArray = [];
+		this._entityArray = [];
 	}
 
 	get probOre() {
@@ -37,6 +36,28 @@ class Cell extends Pos {
 		return this._oreMinedByMe + this._oreMinedByEnemy;
 	}
 
+	getEntityData(entity) {
+		return this._entityArray.find((a) => {
+			return entity === a;
+		});
+	}
+
+	addEntityData(entity) {
+		this._entityArray.push(entity);
+	}
+
+	removeEntityData(entity) {
+		this._entityArray = this._entityArray.filter((a) => {
+			return entity !== a;
+		});
+	}
+
+	updateEntityData(entity) {
+		if (!this.getEntityData(entity)) {
+			this.addEntityData(entity);
+		}
+	}
+
 	addDigLatch(robot) {
 		if (robot.hasItem) {
 			this._digLatchedArray = new Array(config.MAP_ORE_IN_CELL_MAX).fill(
@@ -49,7 +70,7 @@ class Cell extends Pos {
 
 	removeDigLatch(robot) {
 		this._digLatchedArray = this._digLatchedArray.filter((a) => {
-			robot.id !== a.id;
+			return robot.id !== a.id;
 		});
 	}
 
@@ -80,6 +101,10 @@ class Cell extends Pos {
 
 	turnStart() {
 		this._digLatchedArray = [];
+	}
+
+	turnOver() {
+		this._entityArray = [];
 	}
 
 	update(ore, hole) {
