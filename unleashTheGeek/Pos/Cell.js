@@ -47,6 +47,16 @@ class Cell extends Pos {
 		}
 	}
 
+	removeDigLatch(robot) {
+		this._digLatchedArray = this._digLatchedArray.filter((a) => {
+			robot.id !== a.id;
+		});
+	}
+
+	isDigLatchedByGivenRobot(robot) {
+		return this._digLatchedArray.includes(robot);
+	}
+
 	_dug(gaveOre) {
 		if (gaveOre) {
 			if (this.ore !== '?') {

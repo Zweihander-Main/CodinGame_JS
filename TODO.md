@@ -1,9 +1,39 @@
-If you have an item like radar/trap, make sure you totally latch the cell off
-If you re-evaluate each turn, don't forget to break latches
+    	// this will require decoupling memory move cell and memory dig cell
+    	// will need logic for arrived but wanted to dig at different cell
+    	// trying it with equal weighting per adjacent cells?
+
+Re-evaluate every turn
+
+Radar should try and follow edge of previous radar -- maximize edge contact
+
+destination memory latching unsure of
+
+More complex system -- movement to cells where you can change the dig target are excellent
+
+Verify mind change then can dig in cardinal direction while staying in same cell
+
+Need to weight further moves away harder when placing radar if there is sufficient revealed ore on the map -- perhaps calculate total ore available on map?
+
+Scoring should be on cardinal cells, not just single cells
+
+Or redo scoring -- rate all cells then take into account movement?
+
+Shouldn't all positive be counted as movement?
+
+The movement should be greedy -- the scoring assuming (including calculating moves back to hq for scoring)
+
+Can generate two graphs -- one with scores assigned to probs and then do the rest per robot
+
+Start by implementing value calculation for bigger radius -- 5 cells
+
 You're getting creamed if there is a vein in the early half of the map
 
+movement latch can come back if digging and movement are different
+
+Check ore prob of each cell and calculate if all the high prob cells have radar attached
+
 You can figure out where opp radar and bombs are placed
-Target radars, avoid bombs
+Target radars, avoid bombs -- probabilties is what you can do -- doesn't have to be cardinal, can be direction from which they came from (make that configurable)
 
 Track opp movements and get nervous if they've been in a spot?
 
@@ -50,10 +80,12 @@ Intent dig target should be stored in robot -- queue?
 
 If distance equal, prefer left hand side
 
+general function export rather than attaching to classes
+
 1. Rank 621
 2. Rank 113, 30.05
 3. 78, 30.01-28.73
 4. 128, 28
 5. 116, 28.87
-6. (With traps) Yeah baby 1 38 -- Silver: Rank 178 20
+6. (With traps) 1 38 -- Silver: Rank 178 20
 7.

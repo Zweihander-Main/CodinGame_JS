@@ -7,4 +7,5 @@ module.exports = {
 		filename: 'unleashTheGeek.js',
 	},
 	mode: 'none',
+	devtool: 'source-map',
 };

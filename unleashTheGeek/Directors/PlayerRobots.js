@@ -26,129 +26,219 @@ class PlayerRobots extends RobotDirector {
 		}
 	}
 
-	getCellScore(robot, cell, moves, distance, radarLocScore) {
+	getCellDigScore(robot, cell, radarLocScore) {
 		let returnObject = {
-			pos: 0,
-			neg: 0,
-			posReasons: [],
-			negReasons: [],
+			digPos: 0,
+			digNeg: 0,
+			digScore: 0,
+			digPosReasons: [],
+			digNegReasons: [],
 		};
-		const distanceToHQ = cell.distanceToHQ();
-		const totalMoves = moves + robot.movesToCoverDistance(distanceToHQ);
 		if (cell.x === 0) {
-			returnObject.neg += 1000;
-			returnObject.negReasons.push('HQ');
+			returnObject.digNeg += 1000;
+			returnObject.digNegReasons.push('HQ');
 		}
 		if (cell.radar || cell.trap) {
-			returnObject.neg += 1000;
-			returnObject.negReasons.push('Item Present');
+			returnObject.digNeg += 1000;
+			returnObject.digNegReasons.push('Item Present');
 		}
-		if (robot.hasItem && cell.numDigLatched !== 0) {
-			returnObject.neg += 100;
-			returnObject.negReasons.push(
+		if (
+			robot.hasItem &&
+			!cell.isDigLatchedByGivenRobot(robot) &&
+			cell.numDigLatched !== 0
+		) {
+			returnObject.digNeg += 100;
+			returnObject.digNegReasons.push(
 				'Item May Be Destroyed By Another Robot'
 			);
 		}
-		if (cell.ore !== '?' && cell.numDigLatched >= cell.ore) {
-			returnObject.neg += 100;
-			returnObject.negReasons.push('Dig Latched Cell');
+		if (
+			cell.ore !== '?' &&
+			!cell.isDigLatchedByGivenRobot(robot) &&
+			cell.numDigLatched >= cell.ore
+		) {
+			returnObject.digNeg += 100;
+			returnObject.digNegReasons.push('Dig Latched Cell');
 		}
 		if (cell.hole === config.HOLE && cell.myHole !== true) {
-			returnObject.neg += 100;
-			returnObject.negReasons.push('Enemy Hole');
+			returnObject.digNeg += 100;
+			returnObject.digNegReasons.push('Enemy Hole');
 		}
 		if (cell.hole === config.HOLE && cell.ore === '?') {
-			returnObject.neg += 100;
-			returnObject.negReasons.push('Already dug unknown hole'); //TODO track ore extracted
+			returnObject.digNeg += 100;
+			returnObject.digNegReasons.push('Already dug unknown hole'); //TODO track ore extracted
 		}
 		if (cell.ore === 0) {
-			returnObject.neg += 100;
-			returnObject.negReasons.push('Exhausted vein');
+			returnObject.digNeg += 100;
+			returnObject.digNegReasons.push('Exhausted vein');
 		}
 
 		if (robot.hasRadar) {
-			returnObject.pos += radarLocScore;
-			returnObject.posReasons.push(
+			returnObject.digPos += radarLocScore;
+			returnObject.digPosReasons.push(
 				`Radar placement score: ${radarLocScore}`
 			);
+		} else if (robot.hasTrap && cell.ore !== '?' && cell.ore > 0) {
+			if (cell.enemyHole) {
+				returnObject.digPos += 10; // TODO: Overdoing it? -- will be better when you have likely enemy traps
+				returnObject.digPosReasons.push('Perfect trap location');
+			} else {
+				returnObject.digPos += 5;
+				returnObject.digPosReasons.push('Not enemy hole but has ore');
+			}
 		}
 		if (cell.ore === '?') {
-			returnObject.pos += cell.probOre / totalMoves;
-			returnObject.posReasons.push(
-				`%${cell.probOre} prob in ${totalMoves} totalMoves`
-			);
+			returnObject.digPos += cell.probOre;
+			returnObject.digPosReasons.push(`%${cell.probOre} prob`);
 		} else if (cell.ore > 0) {
-			returnObject.pos += 100 / totalMoves;
-			returnObject.posReasons.push(
-				`${cell.ore} ore in ${totalMoves} totalMoves`
-			);
+			returnObject.digPos += 100;
+			for (let i = cell.ore; i > 1; i--) {
+				returnObject.digPos += 25;
+			}
+			returnObject.digPosReasons.push(`${cell.ore} ore`);
 		}
-		returnObject.score = returnObject.pos - returnObject.neg;
+		returnObject.digScore += returnObject.digPos - returnObject.digNeg;
 		return returnObject;
 	}
 
-	getBestCellForRobot(robot) {
+	getValueGraphForDigging(robot) {
 		let valueGraph = [];
 		for (let i = 0, len = this._game.grid.cells.length; i < len; i++) {
-			let valueGraphObject = {
-				cell: this._game.grid.cells[i],
-			};
-			valueGraphObject.distance = valueGraphObject.cell.distance(
-				robot.currentCell
-			);
-			valueGraphObject.moves = robot.movesToCoverDistance(
-				valueGraphObject.distance
-			);
-			if (valueGraphObject.moves === 0) {
-				valueGraphObject.moves = 1;
-			}
+			let cell = this._game.grid.cells[i];
 			let radarLocScore;
 			if (robot.hasRadar) {
-				radarLocScore = this._game.myRadars.radarLocScore(
-					valueGraphObject.cell
-				);
+				radarLocScore = this._game.myRadars.radarLocScore(cell);
 			}
-			valueGraphObject.scoreObject = this.getCellScore(
+			const digScoreObject = this.getCellDigScore(
 				robot,
-				valueGraphObject.cell,
-				valueGraphObject.moves,
-				valueGraphObject.distance,
+				cell,
 				radarLocScore
 			);
-			valueGraph.push(valueGraphObject);
+			valueGraph.push({ digCell: cell, ...digScoreObject });
 		}
-		valueGraph.sort((a, b) => {
-			return b.scoreObject.score - a.scoreObject.score;
-		});
-		console.error(
-			`Pos ${robot.x},${robot.y} resulted in ${valueGraph[0].cell.x},${
-				valueGraph[0].cell.y
-			} with score of ${valueGraph[0].scoreObject.score}, ${
-				valueGraph[0].moves
-			} moves, (${valueGraph[0].scoreObject.posReasons.join(
-				','
-			)}) positive reasons (score: ${
-				valueGraph[0].scoreObject.pos
-			}), and (${valueGraph[0].scoreObject.negReasons.join(
-				','
-			)}) negative reasons (score: ${valueGraph[0].scoreObject.neg}).`
+		return valueGraph;
+	}
+
+	getCellMoveScore(robot, cell) {
+		const returnObject = {
+			totalMoves: 0,
+			moveScore: 0,
+		};
+		const distance = cell.distance(robot.currentCell);
+		const moves = robot.movesToCoverDistance(distance, false);
+		const distanceToHQ = cell.distanceToHQ();
+		const totalMoves =
+			moves + robot.movesToCoverDistance(distanceToHQ, false);
+		returnObject.totalMoves += totalMoves;
+		returnObject.moveScore += totalMoves;
+		return returnObject;
+	}
+
+	getValueGraphForMovingAroundDigCell(robot, digCell) {
+		let movingValueGraph = [];
+		const adjacentCells = this._game.grid.getCellsWithAdjacency(
+			digCell,
+			true
 		);
-		return valueGraph[0];
+		adjacentCells.forEach((cell) => {
+			const moveScoreObject = this.getCellMoveScore(robot, cell);
+			movingValueGraph.push({
+				moveCell: cell,
+				...moveScoreObject,
+			});
+		});
+
+		return movingValueGraph;
+	}
+
+	getIdealCellsData(robot) {
+		let diggingValueGraph = this.getValueGraphForDigging(robot);
+		let idealCellsGraph = [];
+		diggingValueGraph.forEach((digNodeData) => {
+			const movingValueGraph = this.getValueGraphForMovingAroundDigCell(
+				robot,
+				digNodeData.digCell
+			);
+			movingValueGraph.forEach((moveNodeData) => {
+				let idealScore = digNodeData.digPos;
+
+				if (moveNodeData.moveScore !== 0) {
+					idealScore = idealScore / moveNodeData.moveScore;
+				}
+				idealScore = idealScore - digNodeData.digNeg;
+				idealCellsGraph.push({
+					idealScore: idealScore,
+					...moveNodeData,
+					...digNodeData,
+				});
+			});
+		});
+
+		idealCellsGraph.sort((a, b) => {
+			return b.idealScore - a.idealScore;
+		});
+
+		const idealMoveCellData = idealCellsGraph[0];
+
+		if (config.DEVMSG) {
+			// prettier-ignore
+			console.error(`(${robot.x},${robot.y}) => move (${idealMoveCellData.moveCell.x},${idealMoveCellData.moveCell.y}), dig (${idealMoveCellData.digCell.x},${idealMoveCellData.digCell.y})
+ 	digPos: ${idealMoveCellData.digPos}, digNeg: ${idealMoveCellData.digNeg}
+ 	digPosReasons: [${idealMoveCellData.digPosReasons}], digNegReasons: [${idealMoveCellData.digNegReasons}]
+ 	moveScore: ${idealMoveCellData.moveScore}, totalMoves: ${idealMoveCellData.totalMoves}
+ 	idealScore: ${idealMoveCellData.idealScore}`);
+		}
+		return idealMoveCellData;
+
+		// {
+		// 	totalMoves: 0,
+		// 	moveScore: 0,
+		// 	digCell: cell,
+		// 	moveCell: cell,
+		// 	digPos: 0,
+		// 	digNeg: 0,
+		// 	digScore: 0,
+		// 	digPosReasons: [],
+		// 	digNegReasons: [],
+		// }
+	}
+
+	hasScoreChanged(robot) {
+		if (robot.intendedDigCell !== null) {
+			let currentCellScore = this.getCellDigScore(
+				robot,
+				robot.intendedDigCell,
+				0 // radarLocScore only positive, we're comparing negative
+			);
+			if (currentCellScore.digNeg !== robot.anticipatedNegScore) {
+				console.error(
+					currentCellScore.digNeg,
+					robot.anticipatedNegScore,
+					currentCellScore.digNegReasons
+				);
+			}
+			return currentCellScore.digNeg !== robot.anticipatedNegScore;
+		} else {
+			return true;
+		}
 	}
 
 	determineBestAction(robot) {
-		let currentCellScore = this.getCellScore(
-			robot,
-			robot.currentCell,
-			1,
-			0
-		);
-		if (currentCellScore.neg === robot.anticipatedNegScore) {
-			return robot.digCell('DIG');
+		// It has arrived at its destination move cell
+		if (!this.hasScoreChanged(robot)) {
+			return robot.digCell(robot.intendedDigCell, 'DIG');
 		} else {
-			let bestCellData = this.getBestCellForRobot(robot);
-			robot.anticipatedNegScore = bestCellData.scoreObject.neg;
-			return robot.moveToCell(bestCellData.cell, 'MOVE');
+			let bestCellData = this.getIdealCellsData(robot);
+			robot.anticipatedNegScore = bestCellData.digNeg;
+			if (robot.currentCell === bestCellData.moveCell) {
+				return robot.digCell(bestCellData.digCell, 'DIG');
+			} else {
+				return robot.moveToCell(
+					bestCellData.moveCell,
+					bestCellData.digCell,
+					'MOVE'
+				);
+			}
 		}
 	}
 
@@ -160,11 +250,7 @@ class PlayerRobots extends RobotDirector {
 				return robot.declareDead();
 			}
 
-			robot.turnStart();
-
-			if (!robot.memArrived) {
-				return robot.memMove();
-			}
+			robot.turnStart(); // Otherwise, hole might get marked as 0 ore if earlier
 
 			if (robot.isInHQ() && !robot.hasItem) {
 				if (this._game.myRadars.shouldRequestOrTake(robot, true)) {
@@ -176,10 +262,23 @@ class PlayerRobots extends RobotDirector {
 			}
 
 			if (robot.hasOre) {
-				return robot.returnToHQ('HQ:ORE');
+				return robot.returnToHQ('ORE');
 			}
+		});
 
-			return this.determineBestAction(robot);
+		// Clear unneeded digging latches before going further
+		this.availableRobots.forEach((robot) => {
+			if (!robot.arrivedAtLocationInMemory) {
+				if (!this.hasScoreChanged(robot)) {
+					return robot.memMove();
+				} else {
+					robot.breakMemoryLatchForDigging();
+				}
+			}
+		});
+
+		this.availableRobots.forEach((robot) => {
+			this.determineBestAction(robot);
 		});
 	}
 

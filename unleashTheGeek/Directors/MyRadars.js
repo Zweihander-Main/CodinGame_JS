@@ -19,7 +19,7 @@ class MyRadars extends ItemDirector {
 
 	radarLocScore(cell) {
 		const cellsWithinOneMove = this._game.grid.filterOutCellsNearMapEdge(
-			this._game.grid.getCellsWithinOneMove(cell, true),
+			this._game.grid.getCellsWithinOneMove(cell, false, true),
 			2
 		); // Include center, filter out padding around map of 2
 		let score = 0;
@@ -32,9 +32,10 @@ class MyRadars extends ItemDirector {
 			}
 
 			if (cell.myHole) {
-				if (cell.hadOre === false) {
+				// TODO no need for myHole when tracking if enemy mined
+				if (cell.minedOre === 0) {
 					score += -scoreAdd;
-				} else if (cell.hadOre === true) {
+				} else if (cell.minedOre > 0) {
 					score += scoreAdd;
 				}
 			}
@@ -43,6 +44,9 @@ class MyRadars extends ItemDirector {
 				score += -scoreAdd * 3;
 			}
 		});
+		if (score < 0) {
+			score = 0;
+		}
 		return score;
 	}
 }

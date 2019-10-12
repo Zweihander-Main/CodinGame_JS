@@ -4,6 +4,10 @@ class Pos {
 		this.y = y;
 	}
 
+	get pretty() {
+		return `(${this.x},${this.y})`;
+	}
+
 	distance(pos) {
 		return Math.abs(this.x - pos.x) + Math.abs(this.y - pos.y);
 	}

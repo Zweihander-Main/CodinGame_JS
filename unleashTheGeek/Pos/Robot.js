@@ -64,7 +64,8 @@ class Robot extends Entity {
 		return this.x === -1 && this.y === -1;
 	}
 
-	movesToCoverDistance(distance) {
+	movesToCoverDistance(distance, addInAdjacency) {
+		distance = distance - (addInAdjacency ? 1 : 0);
 		return Math.ceil(distance / config.AGENTS_MOVE_DISTANCE);
 	}
 }

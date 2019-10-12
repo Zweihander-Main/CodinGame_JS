@@ -8,6 +8,13 @@ class RobotDirector extends EntityDirector {
 	getCell(x, y) {
 		return this._game.grid.getCell(x, y);
 	}
+
+	isCellWithinAdjacency(currentCell, destinationCell) {
+		return this._game.grid.isCellWithinAdjacency(
+			currentCell,
+			destinationCell
+		);
+	}
 }
 
 export default RobotDirector;

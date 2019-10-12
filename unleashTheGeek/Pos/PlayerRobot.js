@@ -4,17 +4,19 @@ import config from '../config.js';
 class PlayerRobot extends Robot {
 	constructor(x, y, type, id, item, director) {
 		super(x, y, type, id, item, director);
-		this.destinationMemory = { x: this.x, y: this.y, message: '' };
+		this.intendedDigCell = null;
+		this.intendedMoveCell = null;
+		this.intendedMessage = '';
 		this.resetAnticipatedScore();
 		this.commandToExecute = {};
 		this.clearCommandToExecute();
 		this.commandHistory = [];
 	}
 
-	get memArrived() {
+	get arrivedAtLocationInMemory() {
 		return (
-			this.destinationMemory.x === this.x &&
-			this.destinationMemory.y === this.y
+			this.intendedMoveCell === null ||
+			this.intendedMoveCell === this.currentCell
 		);
 	}
 
@@ -30,6 +32,11 @@ class PlayerRobot extends Robot {
 			} else {
 				this.currentCell.dugByMe(false);
 			}
+		}
+
+		// add latches from memory
+		if (this.intendedDigCell !== null) {
+			this.addMemoryLatchForDigging(this.intendedDigCell);
 		}
 	}
 
@@ -59,19 +66,17 @@ class PlayerRobot extends Robot {
 		this.commandToExecute.params = [];
 	}
 
-	consoleMove(x, y, message = '') {
-		this.destinationMemory.x = x;
-		this.destinationMemory.y = y;
-		this.destinationMemory.message = message;
-		console.log(`MOVE ${x} ${y} ${message}`);
+	consoleMove(cell, message = '') {
+		this.intendedMessage = message;
+		console.log(`MOVE ${cell.x} ${cell.y} ${message}`);
 	}
 
 	consoleWait(message = '') {
 		console.log(`WAIT ${message}`);
 	}
 
-	consoleDig(x, y, message = '') {
-		console.log(`DIG ${x} ${y} ${message}`);
+	consoleDig(cell, message = '') {
+		console.log(`DIG ${cell.x} ${cell.y} ${message}`);
 	}
 
 	consoleRequest(item, message = '') {
@@ -109,63 +114,65 @@ class PlayerRobot extends Robot {
 		);
 	}
 
-	moveToCell(cell, message) {
-		if (cell.x !== 0) {
-			cell.addDigLatch(this);
+	moveToCell(moveCell, digCell, message) {
+		if (digCell !== null && digCell.x !== 0) {
+			this.addMemoryLatchForDigging(digCell);
 		}
+		this.intendedDigCell = digCell;
+		this.intendedMoveCell = moveCell;
 		return this.setCommandToExecute(
 			this.consoleMove,
 			this,
-			cell.x,
-			cell.y,
+			moveCell,
 			message
 		);
 	}
 
 	memMove() {
-		let newCell = this.director.getCell(
-			this.destinationMemory.x,
-			this.destinationMemory.y
-		);
-		if (this.destinationMemory.message.indexOf('|MEMx') !== -1) {
-			let message = this.destinationMemory.message;
-			let currentNum = parseInt(
-				message.substring(message.indexOf('|MEMx') + 5),
-				10
-			);
-			message =
-				message.substring(0, message.indexOf('|MEMx') + 5) +
-				(currentNum + 1);
-			this.destinationMemory.message = message;
+		if (this.intendedMessage.indexOf('|MEMx') !== -1) {
+			let message = this.intendedMessage;
+			let memIndex = message.indexOf('|MEMx') + 5;
+			let currentNum = parseInt(message.substring(memIndex), 10);
+			message = message.substring(0, memIndex).concat(currentNum + 1);
+			this.intendedMessage = message;
 		} else {
-			this.destinationMemory.message =
-				this.destinationMemory.message + '|MEMx1';
+			this.intendedMessage = this.intendedMessage + '|MEMx1';
 		}
-		return this.moveToCell(newCell, this.destinationMemory.message);
+		return this.moveToCell(
+			this.intendedMoveCell,
+			this.intendedDigCell,
+			this.intendedMessage
+		);
 	}
 
-	digCell(message) {
+	digCell(cell, message) {
 		this.resetAnticipatedScore();
-		let newCell = this.director.getCell(this.x, this.y);
+		// this.director.placingItem(this.item,cell);
 		if (this.hasRadar) {
-			newCell.radar = true;
+			cell.radar = true;
 		} else if (this.hasTrap) {
-			newCell.trap = true;
+			cell.trap = true;
 		}
-		newCell.addDigLatch(this);
-		newCell.myHole = true;
-		return this.setCommandToExecute(
-			this.consoleDig,
-			this,
-			this.x,
-			this.y,
-			message
-		);
+		cell.myHole = true;
+		this.intendedMoveCell = this.currentCell;
+		this.intendedDigCell = cell;
+		this.addMemoryLatchForDigging(cell);
+		return this.setCommandToExecute(this.consoleDig, this, cell, message);
+	}
+
+	addMemoryLatchForDigging(cell) {
+		cell.addDigLatch(this);
+	}
+
+	breakMemoryLatchForDigging() {
+		this.intendedDigCell.removeDigLatch(this);
+		this.intendedDigCell = null;
 	}
 
 	returnToHQ(message) {
 		this.resetAnticipatedScore();
-		return this.moveToCell({ x: 0, y: this.y }, message);
+		message = message ? 'HQ:' + message : 'HQ';
+		return this.moveToCell(this.director.getCell(0, this.y), null, message);
 	}
 
 	resetAnticipatedScore() {

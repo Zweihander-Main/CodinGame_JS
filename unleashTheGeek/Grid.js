@@ -23,6 +23,10 @@ class Grid {
 		}
 	}
 
+	get numCellsWithoutRadar() {
+		return this.getCellsWithoutRadar().length;
+	}
+
 	turnStart() {
 		this.cells.forEach((cell) => {
 			cell.turnStart();
@@ -32,23 +36,29 @@ class Grid {
 	turnOver() {}
 
 	getCell(x, y) {
-		return this.cells[x + config.MAP_WIDTH * y];
+		if (x < config.MAP_WIDTH && y < config.MAP_HEIGHT && x >= 0 && y >= 0) {
+			return this.cells[x + config.MAP_WIDTH * y];
+		}
+		return null;
 	}
 
-	getCellsWithinOneMove(center, includeCenter) {
+	getCellsWithinOneMove(centerCell, includeDigRange, includeCenter) {
+		const OPTIMIZED_DIAMOND = includeDigRange
+			? config.OPTIMIZED_DIAMOND_5
+			: config.OPTIMIZED_DIAMOND_4;
 		let returnArray = [];
-		let x = center.x;
-		let y = center.y;
-		for (let i = 0, len = config.OPTIMIZED_DIAMOND.length; i < len; i++) {
-			let newX = x + config.OPTIMIZED_DIAMOND[i].x;
-			let newY = y + config.OPTIMIZED_DIAMOND[i].y;
+		let x = centerCell.x;
+		let y = centerCell.y;
+		for (let i = 0, len = OPTIMIZED_DIAMOND.length; i < len; i++) {
+			let newX = x + OPTIMIZED_DIAMOND[i].x;
+			let newY = y + OPTIMIZED_DIAMOND[i].y;
 			let newCell = this.getCell(newX, newY);
 			if (newCell) {
 				returnArray.push(newCell);
 			}
 		}
 		if (includeCenter) {
-			returnArray.push(center);
+			returnArray.push(centerCell);
 		}
 		return returnArray;
 	}
@@ -76,8 +86,30 @@ class Grid {
 		});
 	}
 
-	get numCellsWithoutRadar() {
-		return this.getCellsWithoutRadar().length;
+	getCellsWithAdjacency(centerCell, includeCenter) {
+		let returnArray = [];
+		for (let i = 0, len = config.ADJACENCY.length; i < len; i++) {
+			let newCell = this.getCell(
+				centerCell.x + config.ADJACENCY[i].x,
+				centerCell.y + config.ADJACENCY[i].y
+			);
+			if (newCell) {
+				returnArray.push(newCell);
+			}
+		}
+		if (includeCenter) {
+			returnArray.push(centerCell);
+		}
+		return returnArray;
+	}
+
+	isCellWithinAdjacency(currentCell, destinationCell) {
+		if (currentCell === destinationCell) {
+			return true;
+		}
+		return this.getCellsWithAdjacency(currentCell).findIndex((cell) => {
+			return cell === destinationCell;
+		});
 	}
 }
 
