@@ -7,7 +7,7 @@ class PlayerRobot extends Robot {
 		this.intendedDigCell = null;
 		this.intendedMoveCell = null;
 		this.intendedMessage = '';
-		this.resetAnticipatedScore();
+		this.resetAnticipatedScore(); //this.anticipatedNegScore, this.anticipatedPosScore
 		this.commandToExecute = {};
 		this.clearCommandToExecute();
 		this.commandHistory = [];
@@ -176,6 +176,7 @@ class PlayerRobot extends Robot {
 
 	resetAnticipatedScore() {
 		this.anticipatedNegScore = Infinity;
+		this.anticipatedPosScore = -Infinity;
 	}
 
 	declareDead() {

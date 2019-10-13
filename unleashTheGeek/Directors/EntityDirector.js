@@ -26,11 +26,15 @@ class EntityDirector {
 			entity.y = y;
 			let cell = this._game.grid.getCell(x, y);
 			entity.updateCell(cell);
-			cell.updateEntityData(entity);
+			if (cell) {
+				cell.updateEntityData(entity);
+			}
 		} else if (entity.currentCell === null) {
 			let cell = this._game.grid.getCell(x, y);
 			entity.updateCell(cell);
-			cell.updateEntityData(entity);
+			if (cell) {
+				cell.updateEntityData(entity);
+			}
 		}
 		if (item) {
 			entity.updateItem(item);

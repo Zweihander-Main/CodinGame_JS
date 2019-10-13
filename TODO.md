@@ -2,6 +2,8 @@
     	// will need logic for arrived but wanted to dig at different cell
     	// trying it with equal weighting per adjacent cells?
 
+If robot carrying trap/radar signals intent to dig, robot calculating afterwards may also signal to dig despite trap/radar there
+
 Re-evaluate every turn
 
 Radar should try and follow edge of previous radar -- maximize edge contact
@@ -87,5 +89,10 @@ general function export rather than attaching to classes
 3. 78, 30.01-28.73
 4. 128, 28
 5. 116, 28.87
-6. (With traps) 1 38 -- Silver: Rank 178 20
-7.
+6. (With traps) 1 38
+
+Silver:
+
+7. 178, 20
+8. 59, 23.30
+9. 22, 24.46

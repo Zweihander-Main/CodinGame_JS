@@ -210,14 +210,24 @@ class PlayerRobots extends RobotDirector {
 				robot.intendedDigCell,
 				0 // radarLocScore only positive, we're comparing negative
 			);
-			if (currentCellScore.digNeg !== robot.anticipatedNegScore) {
+			if (
+				currentCellScore.digNeg !== robot.anticipatedNegScore ||
+				currentCellScore.digPos < robot.anticipatedPosScore
+			) {
 				console.error(
-					currentCellScore.digNeg,
 					robot.anticipatedNegScore,
-					currentCellScore.digNegReasons
+					currentCellScore.digNeg,
+					currentCellScore.digNegReasons,
+					'|',
+					robot.anticipatedPosScore,
+					currentCellScore.digPos,
+					currentCellScore.digPosReasons
 				);
 			}
-			return currentCellScore.digNeg !== robot.anticipatedNegScore;
+			return (
+				currentCellScore.digNeg !== robot.anticipatedNegScore ||
+				currentCellScore.digPos < robot.anticipatedPosScore
+			);
 		} else {
 			return true;
 		}
@@ -229,6 +239,7 @@ class PlayerRobots extends RobotDirector {
 			return robot.digCell(robot.intendedDigCell, 'DIG');
 		} else {
 			let bestCellData = this.getIdealCellsData(robot);
+			robot.anticipatedPosScore = bestCellData.digPos;
 			robot.anticipatedNegScore = bestCellData.digNeg;
 			if (robot.currentCell === bestCellData.moveCell) {
 				return robot.digCell(bestCellData.digCell, 'DIG');
