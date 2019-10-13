@@ -45,7 +45,8 @@ config.EUCLIDEAN_RADAR = false;
 config.AGENTS_START_PACKED = true;
 
 // tuning
-config.UNKNOWN_CELL_THRESHOLD = 100; // for radar
+config.UNKNOWN_CELL_THRESHOLD = 70; // for radar
+config.DIG_POS_SCORE_CHANGE_THRESHOLD = 20;
 config.ENABLE_TRAPS = false;
 config.DEVMSG = true;
 // prettier-ignore

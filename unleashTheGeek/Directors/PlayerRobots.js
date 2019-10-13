@@ -78,6 +78,10 @@ class PlayerRobots extends RobotDirector {
 			returnObject.digPosReasons.push(
 				`Radar placement score: ${radarLocScore}`
 			);
+			if (radarLocScore <= 0) {
+				returnObject.digNeg += 100;
+				returnObject.digNegReasons.push('Bad Radar Loc');
+			}
 		} else if (robot.hasTrap && cell.ore !== '?' && cell.ore > 0) {
 			if (cell.enemyHole) {
 				returnObject.digPos += 10; // TODO: Overdoing it? -- will be better when you have likely enemy traps
@@ -154,6 +158,7 @@ class PlayerRobots extends RobotDirector {
 	getIdealCellsData(robot) {
 		let diggingValueGraph = this.getValueGraphForDigging(robot);
 		let idealCellsGraph = [];
+		console.error('preok');
 		diggingValueGraph.forEach((digNodeData) => {
 			const movingValueGraph = this.getValueGraphForMovingAroundDigCell(
 				robot,
@@ -173,11 +178,11 @@ class PlayerRobots extends RobotDirector {
 				});
 			});
 		});
-
+		console.error('pastok');
 		idealCellsGraph.sort((a, b) => {
 			return b.idealScore - a.idealScore;
 		});
-
+		console.error('pastsort');
 		const idealMoveCellData = idealCellsGraph[0];
 
 		if (config.DEVMSG) {
@@ -205,28 +210,24 @@ class PlayerRobots extends RobotDirector {
 
 	hasScoreChanged(robot) {
 		if (robot.intendedDigCell !== null) {
+			let radarLocScore = 0;
+			if (robot.hasRadar) {
+				radarLocScore = this._game.myRadars.radarLocScore(
+					robot.intendedDigCell
+				);
+			}
+			console.error('scorechange-radar');
 			let currentCellScore = this.getCellDigScore(
 				robot,
 				robot.intendedDigCell,
-				0 // radarLocScore only positive, we're comparing negative
+				radarLocScore
 			);
-			if (
-				currentCellScore.digNeg !== robot.anticipatedNegScore ||
-				currentCellScore.digPos < robot.anticipatedPosScore
-			) {
-				console.error(
-					robot.anticipatedNegScore,
-					currentCellScore.digNeg,
-					currentCellScore.digNegReasons,
-					'|',
-					robot.anticipatedPosScore,
-					currentCellScore.digPos,
-					currentCellScore.digPosReasons
-				);
-			}
+			console.error('scorechange-cellscore');
 			return (
 				currentCellScore.digNeg !== robot.anticipatedNegScore ||
-				currentCellScore.digPos < robot.anticipatedPosScore
+				currentCellScore.digPos <
+					robot.anticipatedPosScore +
+						config.DIG_POS_SCORE_CHANGE_THRESHOLD
 			);
 		} else {
 			return true;
@@ -235,15 +236,20 @@ class PlayerRobots extends RobotDirector {
 
 	determineBestAction(robot) {
 		// It has arrived at its destination move cell
+		console.error('prescore');
 		if (!this.hasScoreChanged(robot)) {
+			console.error('unclear-dig ');
 			return robot.digCell(robot.intendedDigCell, 'DIG');
 		} else {
+			console.error('postscore-changed');
 			let bestCellData = this.getIdealCellsData(robot);
 			robot.anticipatedPosScore = bestCellData.digPos;
 			robot.anticipatedNegScore = bestCellData.digNeg;
 			if (robot.currentCell === bestCellData.moveCell) {
+				console.error('cleared - dig');
 				return robot.digCell(bestCellData.digCell, 'DIG');
 			} else {
+				console.error('cleared - move');
 				return robot.moveToCell(
 					bestCellData.moveCell,
 					bestCellData.digCell,
@@ -260,9 +266,7 @@ class PlayerRobots extends RobotDirector {
 			if (robot.isDead()) {
 				return robot.declareDead();
 			}
-
 			robot.turnStart(); // Otherwise, hole might get marked as 0 ore if earlier
-
 			if (robot.isInHQ() && !robot.hasItem) {
 				if (this._game.myRadars.shouldRequestOrTake(robot, true)) {
 					return robot.takeRadar('REQRADAR');
@@ -287,6 +291,8 @@ class PlayerRobots extends RobotDirector {
 				}
 			}
 		});
+
+		console.error(this.availableRobots.length, ' to clear');
 
 		this.availableRobots.forEach((robot) => {
 			this.determineBestAction(robot);

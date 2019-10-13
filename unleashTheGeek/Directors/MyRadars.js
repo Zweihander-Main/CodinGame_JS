@@ -17,9 +17,23 @@ class MyRadars extends ItemDirector {
 		);
 	}
 
-	radarLocScore(cell) {
+	amountOfEdgesAdjacentToOtherRadars(cell) {
+		let touchingCells = 0;
+		this.entities.forEach((radar) => {
+			if (cell.distance(radar) === 9) {
+				touchingCells += Math.min(
+					Math.abs(cell.y - radar.y) + 1,
+					Math.abs(cell.x - radar.x) + 1
+				);
+			}
+		});
+		return touchingCells;
+	}
+
+	radarLocScore(radarCheckCell) {
 		const cellsWithinOneMove = this._game.grid.filterOutCellsNearMapEdge(
-			this._game.grid.getCellsWithinOneMove(cell, false, true),
+			// cells within one move = cells in radar range
+			this._game.grid.getCellsWithinOneMove(radarCheckCell, false, true),
 			2
 		); // Include center, filter out padding around map of 2
 		let score = 0;
@@ -43,7 +57,22 @@ class MyRadars extends ItemDirector {
 			if (cell.radar) {
 				score += -scoreAdd * 3;
 			}
+
+			if (cell.x === 0) {
+				score += -scoreAdd * 4;
+			}
 		});
+
+		let touchingRadarCells = this.amountOfEdgesAdjacentToOtherRadars(
+			radarCheckCell
+		);
+		if (touchingRadarCells >= 4) {
+			score += scoreAdd;
+			if (touchingRadarCells >= 6) {
+				score += scoreAdd;
+			}
+		}
+
 		if (score < 0) {
 			score = 0;
 		}
