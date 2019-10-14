@@ -2,9 +2,8 @@ import { MAP_ORE_IN_CELL_MAX, HOLE } from '../config.js';
 import Pos from './Pos.js';
 
 class Cell extends Pos {
-	constructor(ore, hole, x, y, probOre, grid) {
+	constructor(ore, hole, x, y, probOre) {
 		super(x, y);
-		this._grid = grid;
 		this.update(ore, hole); //this.ore, this.hole
 		this.myHole = false;
 		this._oreGiven = 0;
@@ -36,28 +35,6 @@ class Cell extends Pos {
 
 	get minedOre() {
 		return this._oreMinedByMe + this._oreMinedByEnemy;
-	}
-
-	getEntityOnCell(entity) {
-		return this._entityArray.find((a) => {
-			return entity === a;
-		});
-	}
-
-	addEntityData(entity) {
-		this._entityArray.push(entity);
-	}
-
-	removeEntityData(entity) {
-		this._entityArray = this._entityArray.filter((a) => {
-			return entity !== a;
-		});
-	}
-
-	updateEntityData(entity) {
-		if (!this.getEntityOnCell(entity)) {
-			this.addEntityData(entity);
-		}
 	}
 
 	addDigLatch(robot) {
@@ -103,12 +80,8 @@ class Cell extends Pos {
 		this.myHole = true;
 	}
 
-	turnStart() {
+	resetDigLatchedArray() {
 		this._digLatchedArray = [];
-	}
-
-	turnOver() {
-		this._entityArray = [];
 	}
 
 	update(ore, hole) {

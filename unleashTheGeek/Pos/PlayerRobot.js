@@ -145,18 +145,23 @@ class PlayerRobot extends Robot {
 		);
 	}
 
-	digCell(cell, message) {
+	digCell(digCell, message) {
 		this.resetAnticipatedScore();
 		if (this.hasRadar) {
-			cell.radar = true;
+			digCell.radar = true;
 		} else if (this.hasTrap) {
-			cell.trap = true;
+			digCell.trap = true;
 		}
-		cell.aboutToBeDug();
+		digCell.aboutToBeDug();
 		this.intendedMoveCell = this.cell;
-		this.intendedDigCell = cell;
-		this.addMemoryLatchForDigging(cell);
-		return this.setCommandToExecute(this.consoleDig, this, cell, message);
+		this.intendedDigCell = digCell;
+		this.addMemoryLatchForDigging(digCell);
+		return this.setCommandToExecute(
+			this.consoleDig,
+			this,
+			digCell,
+			message
+		);
 	}
 
 	addMemoryLatchForDigging(cell) {
@@ -168,10 +173,10 @@ class PlayerRobot extends Robot {
 		this.intendedDigCell = null;
 	}
 
-	returnToHQ(message) {
+	returnToHQ(moveCell, message) {
 		this.resetAnticipatedScore();
 		message = message ? 'HQ:' + message : 'HQ';
-		return this.moveToCell(this.director.getCell(0, this.y), null, message);
+		return this.moveToCell(moveCell, null, message);
 	}
 
 	resetAnticipatedScore() {

@@ -11,7 +11,7 @@ class EntityDirector {
 		this.entities = [];
 	}
 
-	getEntity(id) {
+	getEntityById(id) {
 		return this.entities.find((entity) => {
 			return entity.id === id;
 		});
@@ -21,27 +21,15 @@ class EntityDirector {
 		return new Entity(x, y, type, id);
 	}
 
-	updateEntityData(entity, x, y, item) {
-		let cell = this._grid.getCell(x, y);
-		entity.update(x, y, cell, item);
-		if (cell) {
-			cell.updateEntityData(entity);
-		}
-	}
-
 	update(x, y, type, id, item) {
-		let found = this.getEntity(id);
+		let found = this.getEntityById(id);
 		if (found) {
-			this.updateEntityData(found, x, y, item);
+			found.update(x, y, this._grid.getCell(x, y), item);
 		} else {
 			let newEntity = this.createNewEntity(x, y, type, id, item);
 			this.entities.push(newEntity);
-			this.updateEntityData(newEntity, x, y, item);
+			newEntity.update(x, y, this._grid.getCell(x, y), item);
 		}
-	}
-
-	get length() {
-		return this.entities.length;
 	}
 
 	turnStart() {}

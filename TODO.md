@@ -4,6 +4,9 @@
 
 Radar idea: stick it center with closest to center robot requesting, put other robots around field of view of theoretical radar
 
+Generate diggraph once -- possibly on the grid
+Could keep a perpetual dig graph going with scoring system updated in real time -- grid would be responsible
+
 If robot carrying trap/radar signals intent to dig, robot calculating afterwards may also signal to dig despite trap/radar there
 
 Re-evaluate every turn

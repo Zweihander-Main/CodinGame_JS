@@ -1,7 +1,7 @@
-import RobotDirector from './RobotDirector.js';
+import EntityDirector from './EntityDirector.js';
 import EnemyRobot from '../Pos/EnemyRobot.js';
 
-class EnemyRobots extends RobotDirector {
+class EnemyRobots extends EntityDirector {
 	constructor(game) {
 		super(game);
 	}

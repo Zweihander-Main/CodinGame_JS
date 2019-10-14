@@ -18,14 +18,7 @@ class Grid {
 		for (let y = 0; y < MAP_HEIGHT; y++) {
 			for (let x = 0; x < MAP_WIDTH; x++) {
 				let index = x + MAP_WIDTH * y;
-				this.cells[index] = new Cell(
-					'?',
-					0,
-					x,
-					y,
-					PROB_ORE[index],
-					this
-				);
+				this.cells[index] = new Cell('?', 0, x, y, PROB_ORE[index]);
 			}
 		}
 	}
@@ -36,15 +29,11 @@ class Grid {
 
 	turnStart() {
 		this.cells.forEach((cell) => {
-			cell.turnStart();
+			cell.resetDigLatchedArray();
 		});
 	}
 
-	turnOver() {
-		this.cells.forEach((cell) => {
-			cell.turnOver();
-		});
-	}
+	turnOver() {}
 
 	getCell(x, y) {
 		if (x < MAP_WIDTH && y < MAP_HEIGHT && x >= 0 && y >= 0) {

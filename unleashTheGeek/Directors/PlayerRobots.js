@@ -1,4 +1,4 @@
-import RobotDirector from './RobotDirector';
+import EntityDirector from './EntityDirector';
 import PlayerRobot from '../Pos/PlayerRobot.js';
 import {
 	RADAR,
@@ -8,7 +8,7 @@ import {
 } from '../config.js';
 import { distanceBetween, movesToCoverDistance } from '../common.js';
 
-class PlayerRobots extends RobotDirector {
+class PlayerRobots extends EntityDirector {
 	constructor(game) {
 		super(game);
 	}
@@ -341,15 +341,17 @@ class PlayerRobots extends RobotDirector {
 			robot.turnStart(); // Otherwise, hole might get marked as 0 ore if earlier
 			if (robot.isInHQ && !robot.hasItem) {
 				if (this._game.myRadars.shouldRequestOrTake(robot, true)) {
+					this.requestItem(RADAR, 'take', this);
 					return robot.takeRadar('REQRADAR');
 				}
 				if (this._game.myTraps.shouldRequestOrTake(robot)) {
+					this.requestItem(TRAP, 'take', this);
 					return robot.takeTrap('REQTRAP');
 				}
 			}
 
 			if (robot.hasOre) {
-				return robot.returnToHQ('ORE');
+				return robot.returnToHQ(this._grid.getCell(0, robot.y), 'ORE');
 			}
 		});
 		printTime('myRobots.turnStart.rules loop', false);
