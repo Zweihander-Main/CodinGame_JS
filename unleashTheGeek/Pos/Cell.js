@@ -11,6 +11,7 @@ class Cell extends Pos {
 		this.trap = false;
 		this.enemyTrapChance = 0;
 		this.wasJustMined = false;
+		this.updateRadarEdges(0); // amountOfEdgesAdjacentToOtherRadars
 
 		const startingProb = probOre;
 		this.getStartingProb = () => {
@@ -90,6 +91,13 @@ class Cell extends Pos {
 	}
 
 	update(ore, hole) {
+		if (ore !== '?') {
+			this.ore = ore;
+		} else {
+			if (this.ore === '?') {
+				this.ore = ore;
+			} // ignore it if we already know the number and it's given us ?
+		}
 		// We may already know it's empty if we/enemy mined an unknown and got nothing
 		if (this.ore !== 0) {
 			this.ore = ore;
@@ -99,6 +107,16 @@ class Cell extends Pos {
 			this.hole = hole === HOLE ? true : false;
 		} else {
 			this.wasJustMined = false;
+		}
+	}
+
+	updateRadarEdges(numEdges) {
+		this.amountOfEdgesAdjacentToOtherRadars = numEdges;
+	}
+
+	updateRadarSpray(sprayed) {
+		if (sprayed) {
+			this.radarSprayed = true;
 		}
 	}
 
@@ -125,11 +143,11 @@ class Cell extends Pos {
 		if (this.radar || this.trap) {
 			return 1000;
 		}
-		if (this.hole && !this.myHole) {
-			digNeg += 100;
+		if (this.enemyHole) {
+			digNeg += 200;
 		}
 		if (this.hole && this.enemyTrapChance > 0) {
-			digNeg += 100 * this.enemyTrapChance;
+			digNeg += 500 * this.enemyTrapChance;
 		}
 		if (this.hole && this.ore === '?') {
 			digNeg += 100;
@@ -137,6 +155,7 @@ class Cell extends Pos {
 		if (this.ore === 0) {
 			digNeg += 100;
 		}
+
 		return digNeg;
 	}
 
@@ -144,6 +163,11 @@ class Cell extends Pos {
 		let radarScore = 0;
 		if (this.x < 5 || this.radar) {
 			radarScore += -10000;
+		} else {
+			radarScore += 5 ** this.amountOfEdgesAdjacentToOtherRadars;
+			if (this.radarSprayed) {
+				radarScore -= 1000;
+			}
 		}
 		return radarScore;
 	}

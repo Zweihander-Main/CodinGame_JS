@@ -18,7 +18,7 @@ class MyRadars extends ItemDirector {
 		);
 	}
 
-	amountOfEdgesAdjacentToOtherRadars(cell) {
+	getAmountOfEdgesAdjacentToOtherRadars(cell) {
 		let touchingCells = 0;
 		this.entities.forEach((radar) => {
 			if (distanceBetween(cell, radar) === 9) {
@@ -31,40 +31,40 @@ class MyRadars extends ItemDirector {
 		return touchingCells;
 	}
 
-	radarLocScore(radarCheckCell) {
-		const cellsWithinOneMove = this._grid.getCellsWithinOneMove(
-			radarCheckCell,
-			false,
-			true
-		);
+	// radarLocScore(radarCheckCell) {
+	// 	const cellsWithinOneMove = this._grid.getCellsWithinOneMove(
+	// 		radarCheckCell,
+	// 		false,
+	// 		true
+	// 	);
 
-		// Include center, filter out padding around map of 2
-		let score = 0;
-		let scoreAdd = 5; //41 max tiles, 100 best score
-		cellsWithinOneMove.forEach((cell) => {
-			// if (cell.ore === '?') {
-			// 	score += scoreAdd;
-			// 	if (cell.hole) {
-			// 		score += Math.floor(scoreAdd); // 1-3 chance
-			// 	}
-			// } else {
-			// 	score += -scoreAdd;
-			// }
-		});
+	// 	// Include center, filter out padding around map of 2
+	// 	let score = 0;
+	// 	let scoreAdd = 5; //41 max tiles, 100 best score
+	// 	cellsWithinOneMove.forEach((cell) => {
+	// 		// if (cell.ore === '?') {
+	// 		// 	score += scoreAdd;
+	// 		// 	if (cell.hole) {
+	// 		// 		score += Math.floor(scoreAdd); // 1-3 chance
+	// 		// 	}
+	// 		// } else {
+	// 		// 	score += -scoreAdd;
+	// 		// }
+	// 	});
 
-		let touchingRadarCells = this.amountOfEdgesAdjacentToOtherRadars(
-			radarCheckCell
-		);
-		if (touchingRadarCells > 2) {
-			score += (2 * scoreAdd) ^ touchingRadarCells;
-		}
+	// 	let touchingRadarCells = this.getAmountOfEdgesAdjacentToOtherRadars(
+	// 		radarCheckCell
+	// 	);
+	// 	if (touchingRadarCells > 2) {
+	// 		score += (2 * scoreAdd) ^ touchingRadarCells;
+	// 	}
 
-		if (score < 0) {
-			score = 0;
-		}
+	// 	if (score < 0) {
+	// 		score = 0;
+	// 	}
 
-		return score;
-	}
+	// 	return score;
+	// }
 }
 
 export default MyRadars;

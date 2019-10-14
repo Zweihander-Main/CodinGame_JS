@@ -45,7 +45,6 @@ class ItemDirector extends EntityDirector {
 	}
 
 	shouldRequestOrTake(robot) {
-		console.error(this.itemFreezeLatch);
 		return (
 			this.cooldown === 0 &&
 			(this.itemFreezeLatch === false ||

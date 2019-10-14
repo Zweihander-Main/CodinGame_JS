@@ -9,8 +9,9 @@ import {
 import Cell from './Pos/Cell.js';
 
 class Grid {
-	constructor() {
+	constructor(game) {
 		this.cells = [];
+		this._game = game;
 		this.init();
 	}
 
@@ -30,7 +31,23 @@ class Grid {
 	turnStart() {
 		this.cells.forEach((cell) => {
 			cell.resetDigLatchedArray();
+			cell.updateRadarEdges(
+				this._game.myRadars.getAmountOfEdgesAdjacentToOtherRadars(cell)
+			);
 		});
+		const radar = this._game.myRadars.entities[
+			this._game.myRadars.entities.length - 1
+		];
+		if (radar) {
+			const radarSprayedCells = this.getCellsWithinOneMove(
+				this.getCell(radar.x, radar.y),
+				false,
+				true
+			);
+			radarSprayedCells.forEach((cell) => {
+				cell.updateRadarSpray(true);
+			});
+		}
 	}
 
 	turnOver() {}

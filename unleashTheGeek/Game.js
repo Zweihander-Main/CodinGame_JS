@@ -13,11 +13,11 @@ import MyTraps from './Directors/MyTraps.js';
 
 class Game {
 	constructor() {
-		this.grid = new Grid();
 		this.myScore = 0;
 		this.enemyScore = 0;
 		this.turn = 0;
 		this.entityCount = 0;
+		this.grid = new Grid(this);
 		this.myRobots = new MyRobots(this);
 		this.enemyRobots = new EnemyRobots(this);
 		this.myRadars = new MyRadars(this);

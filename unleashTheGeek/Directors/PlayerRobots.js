@@ -2,6 +2,7 @@ import EntityDirector from './EntityDirector';
 import PlayerRobot from '../Pos/PlayerRobot.js';
 import {
 	RADAR,
+	TRAP,
 	TOP_CELLS_TO_ANALYZE,
 	DEVMSG,
 	DIG_POS_SCORE_CHANGE_THRESHOLD,
@@ -77,19 +78,38 @@ class PlayerRobots extends EntityDirector {
 
 				idealScore += -digCell.digNegScore;
 
-				if (robot.hasRadar) {
-					idealScore += digCell.radarPlaceScore;
+				if (
+					robot.hasItem &&
+					!digCell.isDigLatchedByGivenRobot(robot) &&
+					digCell.numDigLatched !== 0
+				) {
+					idealScore += -100;
 				}
-				if (robot.hasTrap) {
-					idealScore += digCell.trapPlaceScore;
+				if (
+					digCell.ore !== '?' &&
+					!digCell.isDigLatchedByGivenRobot(robot) &&
+					digCell.numDigLatched >= digCell.ore
+				) {
+					idealScore += -100;
+				}
+
+				let radarScore = 0;
+				let trapScore = 0;
+				if (robot.hasRadar) {
+					radarScore += digCell.radarPlaceScore;
+					idealScore += radarScore;
+				} else if (robot.hasTrap) {
+					trapScore += digCell.trapPlaceScore;
+					idealScore += trapScore;
 				}
 
 				if (idealScore > savedIdealScore) {
 					idealMoveCellData = {
 						idealScore: idealScore,
-						moveCell: moveNodeData.moveCell,
 						moveScore: moveNodeData.moveScore,
-						totalMoves: moveNodeData.totalMoves,
+						radarPlaceScore: radarScore,
+						trapPlaceScore: trapScore,
+						moveCell: moveNodeData.moveCell,
 						digCell: digCell,
 						digPos: digCell.digPosScore,
 						digNeg: digCell.digNegScore,
@@ -99,14 +119,13 @@ class PlayerRobots extends EntityDirector {
 			}
 		}
 
-		// if (DEVMSG) {
-		// 	// prettier-ignore
-		// 	console.error(`(${robot.x},${robot.y}) => move (${idealMoveCellData.moveCell.x},${idealMoveCellData.moveCell.y}), dig (${idealMoveCellData.digCell.x},${idealMoveCellData.digCell.y})
-		// digPos: ${idealMoveCellData.digPos}, digNeg: ${idealMoveCellData.digNeg}
-		// digPosReasons: [${digPogReasons}], digNegReasons: [${digNegReasons}]
-		// moveScore: ${idealMoveCellData.moveScore}, totalMoves: ${idealMoveCellData.totalMoves}
-		// idealScore: ${idealMoveCellData.idealScore}`);
-		// }
+		if (DEVMSG) {
+			// prettier-ignore
+			console.error(`(${robot.x},${robot.y}) => move (${idealMoveCellData.moveCell.x},${idealMoveCellData.moveCell.y}), dig (${idealMoveCellData.digCell.x},${idealMoveCellData.digCell.y})
+		digPos: ${idealMoveCellData.digPos}, digNeg: ${idealMoveCellData.digNeg}
+		radarScore: ${idealMoveCellData.radarPlaceScore}, trapScore: ${idealMoveCellData.trapPlaceScore}
+		moveScore: ${idealMoveCellData.moveScore}, idealScore: ${idealMoveCellData.idealScore}`);
+		}
 		return idealMoveCellData;
 	}
 
@@ -185,11 +204,11 @@ class PlayerRobots extends EntityDirector {
 			robot.turnStart(); // Otherwise, hole might get marked as 0 ore if earlier
 			if (robot.isInHQ && !robot.hasItem) {
 				if (this._game.myRadars.shouldRequestOrTake(robot)) {
-					this.requestItem(RADAR, 'take', this);
+					this.requestItem(RADAR, 'take', robot);
 					return robot.takeRadar('REQRADAR');
 				}
 				if (this._game.myTraps.shouldRequestOrTake(robot)) {
-					this.requestItem(TRAP, 'take', this);
+					this.requestItem(TRAP, 'take', robot);
 					return robot.takeTrap('REQTRAP');
 				}
 			}
