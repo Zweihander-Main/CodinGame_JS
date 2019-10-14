@@ -4,9 +4,9 @@ import Pos from './Pos.js';
 class Entity extends Pos {
 	constructor(x, y, type, id) {
 		super(x, y);
-		this.updateCell(null); //this.currentCell
 		const _id = id;
 		const _type = type;
+		this.cell = null;
 
 		this.getId = () => {
 			return _id;
@@ -45,8 +45,10 @@ class Entity extends Pos {
 		return this.getType() === ROBOT_ENEMY;
 	}
 
-	updateCell(currentCell) {
-		this.currentCell = currentCell;
+	update(x, y, cell) {
+		this.cell = cell;
+		this.x = x;
+		this.y = y;
 	}
 }
 

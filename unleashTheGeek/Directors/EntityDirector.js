@@ -22,23 +22,10 @@ class EntityDirector {
 	}
 
 	updateEntityData(entity, x, y, item) {
-		if (entity.x !== x || entity.y !== y) {
-			entity.x = x;
-			entity.y = y;
-			let cell = this._grid.getCell(x, y);
-			entity.updateCell(cell);
-			if (cell) {
-				cell.updateEntityData(entity);
-			}
-		} else if (entity.currentCell === null) {
-			let cell = this._grid.getCell(x, y);
-			entity.updateCell(cell);
-			if (cell) {
-				cell.updateEntityData(entity);
-			}
-		}
-		if (item) {
-			entity.updateItem(item);
+		let cell = this._grid.getCell(x, y);
+		entity.update(x, y, cell, item);
+		if (cell) {
+			cell.updateEntityData(entity);
 		}
 	}
 

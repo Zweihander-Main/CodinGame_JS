@@ -6,7 +6,7 @@ import {
 	DEVMSG,
 	DIG_POS_SCORE_CHANGE_THRESHOLD,
 } from '../config.js';
-import { distanceBetween } from '../common.js';
+import { distanceBetween, movesToCoverDistance } from '../common.js';
 
 class PlayerRobots extends RobotDirector {
 	constructor(game) {
@@ -170,11 +170,10 @@ class PlayerRobots extends RobotDirector {
 	}
 
 	getCellMoveScore(robot, cell) {
-		const distance = distanceBetween(cell, robot.currentCell);
-		const moves = robot.movesToCoverDistance(distance, false);
+		const distance = distanceBetween(cell, robot.cell);
+		const moves = movesToCoverDistance(distance, false);
 		const distanceToHQ = cell.distanceToHQ();
-		const totalMoves =
-			moves + robot.movesToCoverDistance(distanceToHQ, false);
+		const totalMoves = moves + movesToCoverDistance(distanceToHQ, false);
 		const moveScore = totalMoves;
 		return {
 			totalMoves: totalMoves,
@@ -320,7 +319,7 @@ class PlayerRobots extends RobotDirector {
 			);
 			robot.anticipatedPosScore = bestCellData.digPos;
 			robot.anticipatedNegScore = bestCellData.digNeg;
-			if (robot.currentCell === bestCellData.moveCell) {
+			if (robot.cell === bestCellData.moveCell) {
 				return robot.digCell(bestCellData.digCell, 'DIG');
 			} else {
 				return robot.moveToCell(

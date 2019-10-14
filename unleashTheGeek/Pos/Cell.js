@@ -38,7 +38,7 @@ class Cell extends Pos {
 		return this._oreMinedByMe + this._oreMinedByEnemy;
 	}
 
-	getEntityData(entity) {
+	getEntityOnCell(entity) {
 		return this._entityArray.find((a) => {
 			return entity === a;
 		});
@@ -55,7 +55,7 @@ class Cell extends Pos {
 	}
 
 	updateEntityData(entity) {
-		if (!this.getEntityData(entity)) {
+		if (!this.getEntityOnCell(entity)) {
 			this.addEntityData(entity);
 		}
 	}

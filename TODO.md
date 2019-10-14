@@ -2,6 +2,8 @@
     	// will need logic for arrived but wanted to dig at different cell
     	// trying it with equal weighting per adjacent cells?
 
+Radar idea: stick it center with closest to center robot requesting, put other robots around field of view of theoretical radar
+
 If robot carrying trap/radar signals intent to dig, robot calculating afterwards may also signal to dig despite trap/radar there
 
 Re-evaluate every turn

@@ -13,7 +13,10 @@ class ItemDirector extends EntityDirector {
 
 	turnOver() {
 		super.turnOver();
-		if (this.itemFreezeLatch && this.itemFreezeLatch.hasRadarOrTrap) {
+		if (
+			this.itemFreezeLatch &&
+			(this.itemFreezeLatch.hasRadar || this.itemFreezeLatch.hasTrap)
+		) {
 			this.itemFreezeLatch = false;
 		}
 	}

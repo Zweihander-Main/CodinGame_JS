@@ -16,7 +16,7 @@ class PlayerRobot extends Robot {
 	get arrivedAtLocationInMemory() {
 		return (
 			this.intendedMoveCell === null ||
-			this.intendedMoveCell === this.currentCell
+			this.intendedMoveCell === this.cell
 		);
 	}
 
@@ -28,9 +28,9 @@ class PlayerRobot extends Robot {
 				this.consoleDig
 		) {
 			if (this.hasOre) {
-				this.currentCell.dugByMe(true);
+				this.cell.dugByMe(true);
 			} else {
-				this.currentCell.dugByMe(false);
+				this.cell.dugByMe(false);
 			}
 		}
 
@@ -153,7 +153,7 @@ class PlayerRobot extends Robot {
 			cell.trap = true;
 		}
 		cell.aboutToBeDug();
-		this.intendedMoveCell = this.currentCell;
+		this.intendedMoveCell = this.cell;
 		this.intendedDigCell = cell;
 		this.addMemoryLatchForDigging(cell);
 		return this.setCommandToExecute(this.consoleDig, this, cell, message);
