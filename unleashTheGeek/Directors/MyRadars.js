@@ -1,5 +1,6 @@
-import config from '../config.js';
+import { UNKNOWN_CELL_THRESHOLD } from '../config.js';
 import ItemDirector from './ItemDirector.js';
+import { distanceBetween } from '../common.js';
 
 class MyRadars extends ItemDirector {
 	constructor(game) {
@@ -13,14 +14,14 @@ class MyRadars extends ItemDirector {
 	shouldRequestOrTake(robot) {
 		return (
 			super.shouldRequestOrTake(robot) &&
-			this._grid.numCellsWithoutRadar > config.UNKNOWN_CELL_THRESHOLD
+			this._grid.numCellsWithoutRadar > UNKNOWN_CELL_THRESHOLD
 		);
 	}
 
 	amountOfEdgesAdjacentToOtherRadars(cell) {
 		let touchingCells = 0;
 		this.entities.forEach((radar) => {
-			if (cell.distance(radar) === 9) {
+			if (distanceBetween(cell, radar) === 9) {
 				touchingCells += Math.min(
 					Math.abs(cell.y - radar.y) + 1,
 					Math.abs(cell.x - radar.x) + 1

@@ -12,10 +12,6 @@ class Pos {
 		return this.x === 0;
 	}
 
-	distance(pos) {
-		return Math.abs(this.x - pos.x) + Math.abs(this.y - pos.y);
-	}
-
 	distanceToHQ() {
 		return this.x;
 	}

@@ -1,4 +1,10 @@
-import config from './config.js';
+import {
+	ROBOT_ENEMY,
+	ROBOT_ALLY,
+	RADAR,
+	TRAP,
+	ENABLE_TRAPS,
+} from './config.js';
 import Grid from './Grid.js';
 import MyRobots from './Directors/PlayerRobots.js';
 import EnemyRobots from './Directors/EnemyRobots.js';
@@ -15,7 +21,7 @@ class Game {
 		this.myRobots = new MyRobots(this);
 		this.enemyRobots = new EnemyRobots(this);
 		this.myRadars = new MyRadars(this);
-		this.myTraps = new MyTraps(this, config.ENABLE_TRAPS);
+		this.myTraps = new MyTraps(this, ENABLE_TRAPS);
 	}
 
 	turnStart() {
@@ -65,16 +71,16 @@ class Game {
 			return parseInt(a, 10);
 		});
 		switch (type) {
-			case config.ROBOT_ALLY:
+			case ROBOT_ALLY:
 				this.myRobots.update(x, y, type, id, item);
 				break;
-			case config.ROBOT_ENEMY:
+			case ROBOT_ENEMY:
 				this.enemyRobots.update(x, y, type, id, item);
 				break;
-			case config.RADAR:
+			case RADAR:
 				this.myRadars.update(x, y, type, id);
 				break;
-			case config.TRAP:
+			case TRAP:
 				this.myTraps.update(x, y, type, id);
 				break;
 		}

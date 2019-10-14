@@ -1,4 +1,4 @@
-import config from '../config.js';
+import { RADAR, TRAP, NONE, ROBOT_ALLY, ROBOT_ENEMY } from '../config.js';
 import Pos from './Pos.js';
 
 class Entity extends Pos {
@@ -26,23 +26,23 @@ class Entity extends Pos {
 	}
 
 	get radar() {
-		return this.getType() === config.RADAR;
+		return this.getType() === RADAR;
 	}
 
 	get trap() {
-		return this.getType() === config.TRAP;
+		return this.getType() === TRAP;
 	}
 
 	get none() {
-		return this.getType() === config.NONE;
+		return this.getType() === NONE;
 	}
 
 	get myRobot() {
-		return this.getType() === config.ROBOT_ALLY;
+		return this.getType() === ROBOT_ALLY;
 	}
 
 	get enemyRobot() {
-		return this.getType() === config.ROBOT_ENEMY;
+		return this.getType() === ROBOT_ENEMY;
 	}
 
 	updateCell(currentCell) {

@@ -1,9 +1,15 @@
 /*eslint no-constant-condition: ["error", { "checkLoops": false }]*/
-import config from './config.js';
+import {
+	PRINT_READLINE,
+	DEBUG_TIME,
+	MAP_HEIGHT,
+	MAP_WIDTH,
+	generate,
+} from './config.js';
 import Game from './Game.js';
 
 const readlineFunc = () => {
-	if (config.PRINT_READLINE) {
+	if (PRINT_READLINE) {
 		let saved = readline();
 		console.error('READLINE:' + saved);
 		return saved;
@@ -15,7 +21,7 @@ const readlineFunc = () => {
 let prevTime = new Date().getTime();
 global.printTime = (message = '', noPrint = false, msCutoff = 0) => {
 	// defaults to dropping 0ms values
-	if (config.DEBUG_TIME) {
+	if (DEBUG_TIME) {
 		const newTime = new Date().getTime();
 		const diff = newTime - prevTime;
 		if (!noPrint && diff > msCutoff) {
@@ -25,7 +31,7 @@ global.printTime = (message = '', noPrint = false, msCutoff = 0) => {
 	}
 };
 
-config.generate(readlineFunc);
+generate(readlineFunc);
 
 let game = new Game();
 printTime('init', true);
@@ -34,9 +40,9 @@ while (true) {
 	printTime('To Loop Start', true);
 	game.updateScoreData(...readlineFunc().split(' '));
 	printTime('Extra Holdover Time');
-	for (let i = 0; i < config.MAP_HEIGHT; i++) {
+	for (let i = 0; i < MAP_HEIGHT; i++) {
 		let mapDataInputs = readlineFunc().split(' ');
-		for (let j = 0; j < config.MAP_WIDTH; j++) {
+		for (let j = 0; j < MAP_WIDTH; j++) {
 			game.updateCell(
 				j,
 				i,

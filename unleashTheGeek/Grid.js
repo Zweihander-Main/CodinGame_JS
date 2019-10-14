@@ -1,12 +1,12 @@
-import config from './config.js';
+import {
+	MAP_WIDTH,
+	MAP_HEIGHT,
+	OPTIMIZED_DIAMOND_4,
+	OPTIMIZED_DIAMOND_5,
+	ADJACENCY,
+	PROB_ORE,
+} from './config.js';
 import Cell from './Pos/Cell.js';
-
-// Optimization
-const MAP_WIDTH = config.MAP_WIDTH;
-const MAP_HEIGHT = config.MAP_HEIGHT;
-const OPTIMIZED_DIAMOND_4 = config.OPTIMIZED_DIAMOND_5;
-const OPTIMIZED_DIAMOND_5 = config.OPTIMIZED_DIAMOND_4;
-const ADJACENCY = config.ADJACENCY;
 
 class Grid {
 	constructor() {
@@ -23,7 +23,7 @@ class Grid {
 					0,
 					x,
 					y,
-					config.PROB_ORE[index],
+					PROB_ORE[index],
 					this
 				);
 			}

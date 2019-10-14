@@ -1,6 +1,12 @@
 import RobotDirector from './RobotDirector';
 import PlayerRobot from '../Pos/PlayerRobot.js';
-import config from '../config.js';
+import {
+	RADAR,
+	TOP_CELLS_TO_ANALYZE,
+	DEVMSG,
+	DIG_POS_SCORE_CHANGE_THRESHOLD,
+} from '../config.js';
+import { distanceBetween } from '../common.js';
 
 class PlayerRobots extends RobotDirector {
 	constructor(game) {
@@ -19,7 +25,7 @@ class PlayerRobots extends RobotDirector {
 
 	// ask, remote, take
 	requestItem(item, requestType, requester) {
-		if (item === config.RADAR) {
+		if (item === RADAR) {
 			this._game.myRadars.requestItem(requestType, requester);
 		} else {
 			this._game.myTraps.requestItem(requestType, requester);
@@ -164,7 +170,7 @@ class PlayerRobots extends RobotDirector {
 	}
 
 	getCellMoveScore(robot, cell) {
-		const distance = cell.distance(robot.currentCell);
+		const distance = distanceBetween(cell, robot.currentCell);
 		const moves = robot.movesToCoverDistance(distance, false);
 		const distanceToHQ = cell.distanceToHQ();
 		const totalMoves =
@@ -194,7 +200,7 @@ class PlayerRobots extends RobotDirector {
 		const diggingValueGraph = this.getValueGraphForDigging(robot);
 		const amountToSlice = robot.hasRadar
 			? diggingValueGraph.length
-			: config.TOP_CELLS_TO_ANALYZE;
+			: TOP_CELLS_TO_ANALYZE;
 		const topDigNodes = diggingValueGraph
 			.sort((a, b) => {
 				return b.digScore - a.digScore;
@@ -249,7 +255,7 @@ class PlayerRobots extends RobotDirector {
 			printTime('movingValueGraphs');
 		}
 
-		if (config.DEVMSG) {
+		if (DEVMSG) {
 			// prettier-ignore
 			console.error(`(${robot.x},${robot.y}) => move (${idealMoveCellData.moveCell.x},${idealMoveCellData.moveCell.y}), dig (${idealMoveCellData.digCell.x},${idealMoveCellData.digCell.y})
  	digPos: ${idealMoveCellData.digPos}, digNeg: ${idealMoveCellData.digNeg}
@@ -288,8 +294,7 @@ class PlayerRobots extends RobotDirector {
 			return (
 				currentCellScore.digNeg !== robot.anticipatedNegScore ||
 				currentCellScore.digPos <
-					robot.anticipatedPosScore +
-						config.DIG_POS_SCORE_CHANGE_THRESHOLD
+					robot.anticipatedPosScore + DIG_POS_SCORE_CHANGE_THRESHOLD
 			);
 		} else {
 			return true;

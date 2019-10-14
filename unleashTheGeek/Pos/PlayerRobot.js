@@ -1,5 +1,5 @@
 import Robot from './Robot.js';
-import config from '../config.js';
+import { RADAR, TRAP } from '../config.js';
 
 class PlayerRobot extends Robot {
 	constructor(x, y, type, id, item, director) {
@@ -80,9 +80,9 @@ class PlayerRobot extends Robot {
 	}
 
 	consoleRequest(item, message = '') {
-		if (item === config.RADAR) {
+		if (item === RADAR) {
 			console.log(`REQUEST RADAR ${message}`);
-		} else if (item === config.TRAP) {
+		} else if (item === TRAP) {
 			console.log(`REQUEST TRAP ${message}`);
 		} else {
 			throw Error(`unrecognized item: ${item}`);
@@ -90,26 +90,26 @@ class PlayerRobot extends Robot {
 	}
 
 	requestRadarRemotely() {
-		this.director.requestItem(config.RADAR, 'remote', this);
+		this.director.requestItem(RADAR, 'remote', this);
 		return this.returnToHQ();
 	}
 
 	takeRadar(message) {
-		this.director.requestItem(config.RADAR, 'take', this);
+		this.director.requestItem(RADAR, 'take', this);
 		return this.setCommandToExecute(
 			this.consoleRequest,
 			this,
-			config.RADAR,
+			RADAR,
 			message
 		);
 	}
 
 	takeTrap(message) {
-		this.director.requestItem(config.TRAP, 'take', this);
+		this.director.requestItem(TRAP, 'take', this);
 		return this.setCommandToExecute(
 			this.consoleRequest,
 			this,
-			config.TRAP,
+			TRAP,
 			message
 		);
 	}

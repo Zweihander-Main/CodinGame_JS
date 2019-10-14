@@ -1,4 +1,4 @@
-import config from '../config.js';
+import { RADAR, TRAP, NONE, ORE, AGENTS_MOVE_DISTANCE } from '../config.js';
 import Entity from './Entity.js';
 import Pos from './Pos.js';
 
@@ -12,11 +12,11 @@ class Robot extends Entity {
 	}
 
 	get hasRadar() {
-		return this._item === config.RADAR;
+		return this._item === RADAR;
 	}
 
 	get hasTrap() {
-		return this._item === config.TRAP;
+		return this._item === TRAP;
 	}
 
 	get hasRadarOrTrap() {
@@ -24,11 +24,11 @@ class Robot extends Entity {
 	}
 
 	get hasOre() {
-		return this._item === config.ORE;
+		return this._item === ORE;
 	}
 
 	get hasItem() {
-		return this._item !== config.NONE;
+		return this._item !== NONE;
 	}
 
 	get itemLastTurn() {
@@ -36,19 +36,19 @@ class Robot extends Entity {
 	}
 
 	get hadRadar() {
-		return this.itemLastTurn === config.RADAR;
+		return this.itemLastTurn === RADAR;
 	}
 
 	get hadTrap() {
-		return this.itemLastTurn === config.TRAP;
+		return this.itemLastTurn === TRAP;
 	}
 
 	get hadOre() {
-		return this.itemLastTurn === config.ORE;
+		return this.itemLastTurn === ORE;
 	}
 
 	get hadItem() {
-		return this.itemLastTurn !== config.NONE;
+		return this.itemLastTurn !== NONE;
 	}
 
 	get lastDig() {
@@ -91,7 +91,7 @@ class Robot extends Entity {
 
 	movesToCoverDistance(distance, addInAdjacency) {
 		distance = distance - (addInAdjacency ? 1 : 0);
-		return Math.ceil(distance / config.AGENTS_MOVE_DISTANCE);
+		return Math.ceil(distance / AGENTS_MOVE_DISTANCE);
 	}
 }
 

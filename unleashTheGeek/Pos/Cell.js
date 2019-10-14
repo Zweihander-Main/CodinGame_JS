@@ -1,4 +1,4 @@
-import config from '../config.js';
+import { MAP_ORE_IN_CELL_MAX, HOLE } from '../config.js';
 import Pos from './Pos.js';
 
 class Cell extends Pos {
@@ -62,9 +62,7 @@ class Cell extends Pos {
 
 	addDigLatch(robot) {
 		if (robot.hasItem) {
-			this._digLatchedArray = new Array(config.MAP_ORE_IN_CELL_MAX).fill(
-				robot
-			);
+			this._digLatchedArray = new Array(MAP_ORE_IN_CELL_MAX).fill(robot);
 		} else {
 			this._digLatchedArray.push(robot);
 		}
@@ -118,9 +116,9 @@ class Cell extends Pos {
 		if (this.ore !== 0) {
 			this.ore = ore;
 		}
-		if (this.hole !== (hole === config.HOLE)) {
+		if (this.hole !== (hole === HOLE)) {
 			this.wasJustMined = true;
-			this.hole = hole === config.HOLE ? true : false;
+			this.hole = hole === HOLE ? true : false;
 		} else {
 			this.wasJustMined = false;
 		}
