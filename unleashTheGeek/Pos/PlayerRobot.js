@@ -152,7 +152,7 @@ class PlayerRobot extends Robot {
 		} else if (this.hasTrap) {
 			cell.trap = true;
 		}
-		cell.myHole = true;
+		cell.aboutToBeDug();
 		this.intendedMoveCell = this.currentCell;
 		this.intendedDigCell = cell;
 		this.addMemoryLatchForDigging(cell);

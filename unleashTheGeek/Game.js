@@ -19,11 +19,12 @@ class Game {
 	}
 
 	turnStart() {
-		this.myRobots.turnStart();
-		this.enemyRobots.turnStart();
 		this.myRadars.turnStart();
 		this.myTraps.turnStart();
 		this.grid.turnStart();
+		this.enemyRobots.turnStart();
+		this.myRobots.turnStart();
+		printTime('myRobots.turnStart');
 	}
 
 	turnOver() {

@@ -10,6 +10,8 @@ class Cell extends Pos {
 		this._oreGiven = 0;
 		this.radar = false;
 		this.trap = false;
+		this.enemyTrapChance = 0;
+		this.wasJustMined = false;
 
 		const startingProb = probOre;
 		this.getStartingProb = () => {
@@ -25,7 +27,7 @@ class Cell extends Pos {
 	}
 
 	get enemyHole() {
-		return this.hole === config.HOLE && !this.myHole;
+		return this.hole && !this.myHole;
 	}
 
 	get numDigLatched() {
@@ -99,6 +101,10 @@ class Cell extends Pos {
 		this._oreMinedByEnemy++;
 	}
 
+	aboutToBeDug() {
+		this.myHole = true;
+	}
+
 	turnStart() {
 		this._digLatchedArray = [];
 	}
@@ -112,7 +118,12 @@ class Cell extends Pos {
 		if (this.ore !== 0) {
 			this.ore = ore;
 		}
-		this.hole = hole;
+		if (this.hole !== (hole === config.HOLE)) {
+			this.wasJustMined = true;
+			this.hole = hole === config.HOLE ? true : false;
+		} else {
+			this.wasJustMined = false;
+		}
 	}
 }
 

@@ -13,7 +13,7 @@ class MyRadars extends ItemDirector {
 	shouldRequestOrTake(robot) {
 		return (
 			super.shouldRequestOrTake(robot) &&
-			this._game.grid.numCellsWithoutRadar > config.UNKNOWN_CELL_THRESHOLD
+			this._grid.numCellsWithoutRadar > config.UNKNOWN_CELL_THRESHOLD
 		);
 	}
 
@@ -31,51 +31,41 @@ class MyRadars extends ItemDirector {
 	}
 
 	radarLocScore(radarCheckCell) {
-		const cellsWithinOneMove = this._game.grid.filterOutCellsNearMapEdge(
-			// cells within one move = cells in radar range
-			this._game.grid.getCellsWithinOneMove(radarCheckCell, false, true),
-			2
-		); // Include center, filter out padding around map of 2
+		const cellsWithinOneMove = this._grid.getCellsWithinOneMove(
+			radarCheckCell,
+			false,
+			true
+		);
+
+		// Include center, filter out padding around map of 2
 		let score = 0;
-		let scoreAdd = 100 / 41; //41 max tiles, 100 best score
+		let scoreAdd = 5; //41 max tiles, 100 best score
 		cellsWithinOneMove.forEach((cell) => {
-			if (cell.ore === '?') {
-				score += scoreAdd * 2;
-			} else {
-				score += -scoreAdd * 2;
+			if (cell.x === 0 || cell.radar) {
+				score += -10000;
+				return;
 			}
-
-			if (cell.myHole) {
-				// TODO no need for myHole when tracking if enemy mined
-				if (cell.minedOre === 0) {
-					score += -scoreAdd;
-				} else if (cell.minedOre > 0) {
-					score += scoreAdd;
-				}
-			}
-
-			if (cell.radar) {
-				score += -scoreAdd * 3;
-			}
-
-			if (cell.x === 0) {
-				score += -scoreAdd * 4;
-			}
+			// if (cell.ore === '?') {
+			// 	score += scoreAdd;
+			// 	if (cell.hole) {
+			// 		score += Math.floor(scoreAdd); // 1-3 chance
+			// 	}
+			// } else {
+			// 	score += -scoreAdd;
+			// }
 		});
 
 		let touchingRadarCells = this.amountOfEdgesAdjacentToOtherRadars(
 			radarCheckCell
 		);
-		if (touchingRadarCells >= 4) {
-			score += scoreAdd;
-			if (touchingRadarCells >= 6) {
-				score += scoreAdd;
-			}
+		if (touchingRadarCells > 2) {
+			score += (2 * scoreAdd) ^ touchingRadarCells;
 		}
 
 		if (score < 0) {
 			score = 0;
 		}
+
 		return score;
 	}
 }

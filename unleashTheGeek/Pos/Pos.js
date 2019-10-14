@@ -8,12 +8,12 @@ class Pos {
 		return `(${this.x},${this.y})`;
 	}
 
-	distance(pos) {
-		return Math.abs(this.x - pos.x) + Math.abs(this.y - pos.y);
+	get isInHQ() {
+		return this.x === 0;
 	}
 
-	isInHQ() {
-		return this.x === 0;
+	distance(pos) {
+		return Math.abs(this.x - pos.x) + Math.abs(this.y - pos.y);
 	}
 
 	distanceToHQ() {

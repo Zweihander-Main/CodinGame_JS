@@ -1,6 +1,13 @@
 import config from './config.js';
 import Cell from './Pos/Cell.js';
 
+// Optimization
+const MAP_WIDTH = config.MAP_WIDTH;
+const MAP_HEIGHT = config.MAP_HEIGHT;
+const OPTIMIZED_DIAMOND_4 = config.OPTIMIZED_DIAMOND_5;
+const OPTIMIZED_DIAMOND_5 = config.OPTIMIZED_DIAMOND_4;
+const ADJACENCY = config.ADJACENCY;
+
 class Grid {
 	constructor() {
 		this.cells = [];
@@ -8,9 +15,9 @@ class Grid {
 	}
 
 	init() {
-		for (let y = 0; y < config.MAP_HEIGHT; y++) {
-			for (let x = 0; x < config.MAP_WIDTH; x++) {
-				let index = x + config.MAP_WIDTH * y;
+		for (let y = 0; y < MAP_HEIGHT; y++) {
+			for (let x = 0; x < MAP_WIDTH; x++) {
+				let index = x + MAP_WIDTH * y;
 				this.cells[index] = new Cell(
 					'?',
 					0,
@@ -40,23 +47,22 @@ class Grid {
 	}
 
 	getCell(x, y) {
-		if (x < config.MAP_WIDTH && y < config.MAP_HEIGHT && x >= 0 && y >= 0) {
-			return this.cells[x + config.MAP_WIDTH * y];
+		if (x < MAP_WIDTH && y < MAP_HEIGHT && x >= 0 && y >= 0) {
+			return this.cells[x + MAP_WIDTH * y];
 		}
 		return null;
 	}
 
 	getCellsWithinOneMove(centerCell, includeDigRange, includeCenter) {
 		const OPTIMIZED_DIAMOND = includeDigRange
-			? config.OPTIMIZED_DIAMOND_5
-			: config.OPTIMIZED_DIAMOND_4;
+			? OPTIMIZED_DIAMOND_5
+			: OPTIMIZED_DIAMOND_4;
 		let returnArray = [];
 		let x = centerCell.x;
 		let y = centerCell.y;
 		for (let i = 0, len = OPTIMIZED_DIAMOND.length; i < len; i++) {
-			let newX = x + OPTIMIZED_DIAMOND[i].x;
-			let newY = y + OPTIMIZED_DIAMOND[i].y;
-			let newCell = this.getCell(newX, newY);
+			const change = OPTIMIZED_DIAMOND[i];
+			const newCell = this.getCell(x + change.x, y + change.y);
 			if (newCell) {
 				returnArray.push(newCell);
 			}
@@ -69,7 +75,7 @@ class Grid {
 
 	filterOutCellsInHQ(cellArray) {
 		return cellArray.filter((cell) => {
-			return !cell.isInHQ();
+			return !cell.isInHQ;
 		});
 	}
 
@@ -77,9 +83,9 @@ class Grid {
 		return cellArray.filter((cell) => {
 			return (
 				cell.x > distance &&
-				cell.x < config.MAP_WIDTH - distance &&
+				cell.x < MAP_WIDTH - distance &&
 				cell.y > distance &&
-				cell.y < config.MAP_HEIGHT - distance
+				cell.y < MAP_HEIGHT - distance
 			);
 		});
 	}
@@ -92,10 +98,10 @@ class Grid {
 
 	getCellsWithAdjacency(centerCell, includeCenter) {
 		let returnArray = [];
-		for (let i = 0, len = config.ADJACENCY.length; i < len; i++) {
+		for (let i = 0, len = ADJACENCY.length; i < len; i++) {
 			let newCell = this.getCell(
-				centerCell.x + config.ADJACENCY[i].x,
-				centerCell.y + config.ADJACENCY[i].y
+				centerCell.x + ADJACENCY[i].x,
+				centerCell.y + ADJACENCY[i].y
 			);
 			if (newCell) {
 				returnArray.push(newCell);

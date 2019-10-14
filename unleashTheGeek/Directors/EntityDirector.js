@@ -3,6 +3,7 @@ import Entity from '../Pos/Entity.js';
 class EntityDirector {
 	constructor(game) {
 		this._game = game;
+		this._grid = game.grid;
 		this.reset(); // this.entities[]
 	}
 
@@ -24,13 +25,13 @@ class EntityDirector {
 		if (entity.x !== x || entity.y !== y) {
 			entity.x = x;
 			entity.y = y;
-			let cell = this._game.grid.getCell(x, y);
+			let cell = this._grid.getCell(x, y);
 			entity.updateCell(cell);
 			if (cell) {
 				cell.updateEntityData(entity);
 			}
 		} else if (entity.currentCell === null) {
-			let cell = this._game.grid.getCell(x, y);
+			let cell = this._grid.getCell(x, y);
 			entity.updateCell(cell);
 			if (cell) {
 				cell.updateEntityData(entity);

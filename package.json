@@ -64,7 +64,8 @@
 			]
 		},
 		"globals": {
-			"readline": true
+			"readline": true,
+			"printTime": true
 		}
 	},
 	"jshintConfig": {
