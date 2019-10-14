@@ -32,143 +32,6 @@ class PlayerRobots extends EntityDirector {
 		}
 	}
 
-	getCellDigScore(robot, cell, radarLocScore) {
-		let digPos = 0;
-		let digNeg = 0;
-		let digScore = 0;
-		let digPosReasons = [];
-		let digNegReasons = [];
-		if (cell.x === 0) {
-			return {
-				digPos: 0,
-				digNeg: 1000,
-				digPosReasons: [],
-				digNegReasons: ['HQ'],
-				digScore: -1000,
-			};
-		}
-		if (cell.radar || cell.trap) {
-			return {
-				digPos: 0,
-				digNeg: 1000,
-				digPosReasons: [],
-				digNegReasons: ['Item Present'],
-				digScore: -1000,
-			};
-		}
-		if (
-			robot.hasItem &&
-			!cell.isDigLatchedByGivenRobot(robot) &&
-			cell.numDigLatched !== 0
-		) {
-			digNeg += 100;
-			digNegReasons.push('Item May Be Destroyed By Another Robot');
-		}
-		if (
-			cell.ore !== '?' &&
-			!cell.isDigLatchedByGivenRobot(robot) &&
-			cell.numDigLatched >= cell.ore
-		) {
-			digNeg += 100;
-			digNegReasons.push('Dig Latched Cell');
-		}
-		if (cell.hole && !cell.myHole) {
-			digNeg += 100;
-			digNegReasons.push('Enemy Hole');
-		}
-		if (cell.hole && cell.enemyTrapChance > 0) {
-			digNeg += 100 * cell.enemyTrapChance;
-			digNegReasons.push(`${cell.enemyTrapChance} chance of trap`);
-		}
-		if (cell.hole && cell.ore === '?') {
-			digNeg += 100;
-			digNegReasons.push('Already dug unknown hole'); //TODO track ore extracted
-		}
-		if (cell.ore === 0) {
-			digNeg += 100;
-			digNegReasons.push('Exhausted vein');
-		}
-
-		if (robot.hasRadar) {
-			digPos += radarLocScore;
-			digPosReasons.push(`Radar placement score: ${radarLocScore}`);
-			if (radarLocScore <= 0) {
-				digNeg += 100;
-				digNegReasons.push('Bad Radar Loc');
-			}
-		} else if (robot.hasTrap && cell.ore !== '?' && cell.ore > 0) {
-			if (cell.enemyHole) {
-				digPos += 10; // TODO: Overdoing it? -- will be better when you have likely enemy traps
-				digPosReasons.push('Perfect trap location');
-			} else {
-				digPos += 5;
-				digPosReasons.push('Not enemy hole but has ore');
-			}
-		}
-		if (cell.ore === '?') {
-			digPos += cell.probOre;
-			digPosReasons.push(`%${cell.probOre} prob`);
-		} else if (cell.ore > 0) {
-			digPos += 100;
-			for (let i = cell.ore; i > 1; i--) {
-				digPos += 25;
-			}
-			digPosReasons.push(`${cell.ore} ore`);
-		}
-		digScore += digPos - digNeg;
-		return {
-			digPos: digPos,
-			digNeg: digNeg,
-			digPosReasons: digPosReasons,
-			digNegReasons: digNegReasons,
-			digScore: digScore,
-		};
-	}
-
-	getValueGraphForDigging(robot) {
-		let valueGraph = [];
-		for (let i = 0, len = this._grid.cells.length; i < len; i++) {
-			let cell = this._grid.cells[i];
-			let radarLocScore;
-			if (robot.hasRadar) {
-				printTime(null, true);
-				radarLocScore = this._game.myRadars.radarLocScore(cell);
-				printTime('radarLocScore');
-			}
-			const digScoreObject = this.getCellDigScore(
-				robot,
-				cell,
-				radarLocScore
-			);
-			valueGraph.push({ digCell: cell, ...digScoreObject });
-		}
-		return valueGraph;
-	}
-
-	getBestNodeForDigging(robot) {
-		let bestDigScore = -Infinity;
-		let bestCell = {};
-		for (let i = this._grid.cells.length - 1; i !== -1; i--) {
-			let cell = this._grid.cells[i];
-			let radarLocScore;
-			if (robot.hasRadar) {
-				printTime(null, true);
-				radarLocScore = this._game.myRadars.radarLocScore(cell);
-				printTime('radarLocScore');
-			}
-			const digScoreObject = this.getCellDigScore(
-				robot,
-				cell,
-				radarLocScore
-			);
-			if (digScoreObject.digScore > bestDigScore) {
-				bestCell = { digCell: cell, ...digScoreObject };
-				bestDigScore = digScoreObject.digScore;
-			}
-		}
-		return bestCell;
-	}
-
 	getCellMoveScore(robot, cell) {
 		const distance = distanceBetween(cell, robot.cell);
 		const moves = movesToCoverDistance(distance, false);
@@ -196,41 +59,30 @@ class PlayerRobots extends EntityDirector {
 	}
 
 	getIdealCellsData(robot) {
-		const diggingValueGraph = this.getValueGraphForDigging(robot);
-		const amountToSlice = robot.hasRadar
-			? diggingValueGraph.length
-			: TOP_CELLS_TO_ANALYZE;
-		const topDigNodes = diggingValueGraph
-			.sort((a, b) => {
-				return b.digScore - a.digScore;
-			})
-			.slice(0, amountToSlice);
-
-		if (robot.hasRadar) {
-			printTime('diggingValueGraph.withRadar');
-		} else {
-			printTime('diggingValueGraph');
-		}
-
 		let savedIdealScore = -Infinity;
 		let idealMoveCellData = {};
-		let digPogReasons = [];
-		let digNegReasons = [];
-		for (let i = topDigNodes.length - 1; i !== -1; i--) {
-			const digNodeData = topDigNodes[i];
+		for (let i = this._grid.cells.length - 1; i !== -1; i--) {
+			const digCell = this._grid.cells[i];
 			const movingValueGraph = this.getValueGraphForMovingAroundDigCell(
 				robot,
-				digNodeData.digCell
+				digCell
 			);
 			for (let j = 0, len = movingValueGraph.length; j < len; j++) {
 				const moveNodeData = movingValueGraph[j];
-				let idealScore = digNodeData.digPos;
+				let idealScore = digCell.digPosScore;
 
 				if (moveNodeData.moveScore !== 0) {
 					idealScore = idealScore / moveNodeData.moveScore;
 				}
 
-				idealScore = idealScore - digNodeData.digNeg;
+				idealScore += -digCell.digNegScore;
+
+				if (robot.hasRadar) {
+					idealScore += digCell.radarPlaceScore;
+				}
+				if (robot.hasTrap) {
+					idealScore += digCell.trapPlaceScore;
+				}
 
 				if (idealScore > savedIdealScore) {
 					idealMoveCellData = {
@@ -238,62 +90,52 @@ class PlayerRobots extends EntityDirector {
 						moveCell: moveNodeData.moveCell,
 						moveScore: moveNodeData.moveScore,
 						totalMoves: moveNodeData.totalMoves,
-						digCell: digNodeData.digCell,
-						digPos: digNodeData.digPos,
-						digNeg: digNodeData.digNeg,
+						digCell: digCell,
+						digPos: digCell.digPosScore,
+						digNeg: digCell.digNegScore,
 					};
-					digPogReasons = digNodeData.digPosReasons;
-					digNegReasons = digNodeData.digNegReasons;
 					savedIdealScore = idealScore;
 				}
 			}
 		}
-		if (robot.hasRadar) {
-			printTime('movingValueGraphs.withRadar');
-		} else {
-			printTime('movingValueGraphs');
-		}
 
-		if (DEVMSG) {
-			// prettier-ignore
-			console.error(`(${robot.x},${robot.y}) => move (${idealMoveCellData.moveCell.x},${idealMoveCellData.moveCell.y}), dig (${idealMoveCellData.digCell.x},${idealMoveCellData.digCell.y})
- 	digPos: ${idealMoveCellData.digPos}, digNeg: ${idealMoveCellData.digNeg}
- 	digPosReasons: [${digPogReasons}], digNegReasons: [${digNegReasons}]
- 	moveScore: ${idealMoveCellData.moveScore}, totalMoves: ${idealMoveCellData.totalMoves}
- 	idealScore: ${idealMoveCellData.idealScore}`);
-		}
-		return idealMoveCellData;
-
-		// {
-		// 	totalMoves: 0,
-		// 	moveScore: 0,
-		// 	digCell: cell,
-		// 	moveCell: cell,
-		// 	digPos: 0,
-		// 	digNeg: 0,
-		// 	digScore: 0,
-		// 	digPosReasons: [],
-		// 	digNegReasons: [],
+		// if (DEVMSG) {
+		// 	// prettier-ignore
+		// 	console.error(`(${robot.x},${robot.y}) => move (${idealMoveCellData.moveCell.x},${idealMoveCellData.moveCell.y}), dig (${idealMoveCellData.digCell.x},${idealMoveCellData.digCell.y})
+		// digPos: ${idealMoveCellData.digPos}, digNeg: ${idealMoveCellData.digNeg}
+		// digPosReasons: [${digPogReasons}], digNegReasons: [${digNegReasons}]
+		// moveScore: ${idealMoveCellData.moveScore}, totalMoves: ${idealMoveCellData.totalMoves}
+		// idealScore: ${idealMoveCellData.idealScore}`);
 		// }
+		return idealMoveCellData;
 	}
 
 	hasScoreChanged(robot) {
 		if (robot.intendedDigCell !== null) {
-			let radarLocScore = 0;
-			if (robot.hasRadar) {
-				radarLocScore = this._game.myRadars.radarLocScore(
-					robot.intendedDigCell
-				);
-			}
-			let currentCellScore = this.getCellDigScore(
-				robot,
-				robot.intendedDigCell,
-				radarLocScore
-			);
+			// let radarLocScore = 0;
+			// if (robot.hasRadar) {
+			// 	radarLocScore = this._game.myRadars.radarLocScore(
+			// 		robot.intendedDigCell
+			// 	);
+			// }
+			// let currentCellScore = robot.intendedDigCell;
+			// let currentCellScore = this.getCellDigScore(
+			// 	robot,
+			// 	robot.intendedDigCell,
+			// 	radarLocScore
+			// );
 			return (
-				currentCellScore.digNeg !== robot.anticipatedNegScore ||
-				currentCellScore.digPos <
-					robot.anticipatedPosScore + DIG_POS_SCORE_CHANGE_THRESHOLD
+				robot.intendedDigCell.digNegScore !==
+					robot.anticipatedNegScore ||
+				robot.intendedDigCell.digPosScore <
+					robot.anticipatedPosScore +
+						DIG_POS_SCORE_CHANGE_THRESHOLD ||
+				(robot.hasRadar &&
+					robot.intendedDigCell.radarPlaceScore !==
+						robot.anticipatedRadarScore) ||
+				(robot.hasTrap &&
+					robot.intendedDigCell.trapPlaceScore !==
+						robot.anticipatedTrapScore)
 			);
 		} else {
 			return true;
@@ -319,6 +161,8 @@ class PlayerRobots extends EntityDirector {
 			);
 			robot.anticipatedPosScore = bestCellData.digPos;
 			robot.anticipatedNegScore = bestCellData.digNeg;
+			robot.anticipatedRadarScore = bestCellData.radarPlaceScore;
+			robot.anticipatedTrapScore = bestCellData.trapPlaceScore;
 			if (robot.cell === bestCellData.moveCell) {
 				return robot.digCell(bestCellData.digCell, 'DIG');
 			} else {
@@ -340,7 +184,7 @@ class PlayerRobots extends EntityDirector {
 			}
 			robot.turnStart(); // Otherwise, hole might get marked as 0 ore if earlier
 			if (robot.isInHQ && !robot.hasItem) {
-				if (this._game.myRadars.shouldRequestOrTake(robot, true)) {
+				if (this._game.myRadars.shouldRequestOrTake(robot)) {
 					this.requestItem(RADAR, 'take', this);
 					return robot.takeRadar('REQRADAR');
 				}

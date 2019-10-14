@@ -7,7 +7,7 @@ class PlayerRobot extends Robot {
 		this.intendedDigCell = null;
 		this.intendedMoveCell = null;
 		this.intendedMessage = '';
-		this.resetAnticipatedScore(); //this.anticipatedNegScore, this.anticipatedPosScore
+		this.resetAnticipatedScore(); //this.anticipatedNegScore, this.anticipatedPosScore, ancticipatedradar/trapscore
 		this.commandToExecute = {};
 		this.clearCommandToExecute();
 		this.commandHistory = [];
@@ -89,13 +89,7 @@ class PlayerRobot extends Robot {
 		}
 	}
 
-	requestRadarRemotely() {
-		this.director.requestItem(RADAR, 'remote', this);
-		return this.returnToHQ();
-	}
-
 	takeRadar(message) {
-		this.director.requestItem(RADAR, 'take', this);
 		return this.setCommandToExecute(
 			this.consoleRequest,
 			this,
@@ -105,7 +99,6 @@ class PlayerRobot extends Robot {
 	}
 
 	takeTrap(message) {
-		this.director.requestItem(TRAP, 'take', this);
 		return this.setCommandToExecute(
 			this.consoleRequest,
 			this,
@@ -147,12 +140,7 @@ class PlayerRobot extends Robot {
 
 	digCell(digCell, message) {
 		this.resetAnticipatedScore();
-		if (this.hasRadar) {
-			digCell.radar = true;
-		} else if (this.hasTrap) {
-			digCell.trap = true;
-		}
-		digCell.aboutToBeDug();
+		digCell.aboutToBeDug(this._item);
 		this.intendedMoveCell = this.cell;
 		this.intendedDigCell = digCell;
 		this.addMemoryLatchForDigging(digCell);
@@ -182,6 +170,8 @@ class PlayerRobot extends Robot {
 	resetAnticipatedScore() {
 		this.anticipatedNegScore = Infinity;
 		this.anticipatedPosScore = -Infinity;
+		this.anticipatedRadarScore = -Infinity;
+		this.anticipatedTrapScore = -Infinity;
 	}
 
 	declareDead() {

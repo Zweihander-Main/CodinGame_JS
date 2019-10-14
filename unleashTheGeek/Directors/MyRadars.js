@@ -42,10 +42,6 @@ class MyRadars extends ItemDirector {
 		let score = 0;
 		let scoreAdd = 5; //41 max tiles, 100 best score
 		cellsWithinOneMove.forEach((cell) => {
-			if (cell.x === 0 || cell.radar) {
-				score += -10000;
-				return;
-			}
 			// if (cell.ore === '?') {
 			// 	score += scoreAdd;
 			// 	if (cell.hole) {

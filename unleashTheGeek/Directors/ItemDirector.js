@@ -45,6 +45,7 @@ class ItemDirector extends EntityDirector {
 	}
 
 	shouldRequestOrTake(robot) {
+		console.error(this.itemFreezeLatch);
 		return (
 			this.cooldown === 0 &&
 			(this.itemFreezeLatch === false ||
@@ -57,7 +58,7 @@ class ItemDirector extends EntityDirector {
 	}
 
 	isLatchedByGivenRobot(robot) {
-		return this.itemFreezeLatch && this.itemFreezeLatch.id === robot.id;
+		return this.itemFreezeLatch === robot;
 	}
 }
 

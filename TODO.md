@@ -2,6 +2,8 @@
     	// will need logic for arrived but wanted to dig at different cell
     	// trying it with equal weighting per adjacent cells?
 
+Dig latches should happen on cells
+
 Radar idea: stick it center with closest to center robot requesting, put other robots around field of view of theoretical radar
 
 Generate diggraph once -- possibly on the grid

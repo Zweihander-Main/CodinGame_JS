@@ -1,4 +1,4 @@
-import { MAP_ORE_IN_CELL_MAX, HOLE } from '../config.js';
+import { MAP_ORE_IN_CELL_MAX, HOLE, RADAR, TRAP } from '../config.js';
 import Pos from './Pos.js';
 
 class Cell extends Pos {
@@ -76,7 +76,12 @@ class Cell extends Pos {
 		this._oreMinedByEnemy++;
 	}
 
-	aboutToBeDug() {
+	aboutToBeDug(item) {
+		if (item === RADAR) {
+			this.radar = true;
+		} else if (item === TRAP) {
+			this.trap = true;
+		}
 		this.myHole = true;
 	}
 
@@ -95,6 +100,64 @@ class Cell extends Pos {
 		} else {
 			this.wasJustMined = false;
 		}
+	}
+
+	get digPosScore() {
+		let digPos = 0;
+
+		if (this.ore === '?') {
+			digPos += this.probOre;
+		} else if (this.ore > 0) {
+			digPos += 100;
+			for (let i = this.ore; i > 1; i--) {
+				digPos += 25;
+			}
+		}
+
+		return digPos;
+	}
+
+	get digNegScore() {
+		let digNeg = 0;
+		if (this.x === 0) {
+			return 1000;
+		}
+		if (this.radar || this.trap) {
+			return 1000;
+		}
+		if (this.hole && !this.myHole) {
+			digNeg += 100;
+		}
+		if (this.hole && this.enemyTrapChance > 0) {
+			digNeg += 100 * this.enemyTrapChance;
+		}
+		if (this.hole && this.ore === '?') {
+			digNeg += 100;
+		}
+		if (this.ore === 0) {
+			digNeg += 100;
+		}
+		return digNeg;
+	}
+
+	get radarPlaceScore() {
+		let radarScore = 0;
+		if (this.x < 5 || this.radar) {
+			radarScore += -10000;
+		}
+		return radarScore;
+	}
+
+	get trapPlaceScore() {
+		let trapScore = 0;
+		if (this.ore !== '?' && this.ore > 0) {
+			if (this.enemyHole) {
+				trapScore += 10; // TODO: Overdoing it? -- will be better when you have likely enemy traps
+			} else {
+				trapScore += 5;
+			}
+		}
+		return trapScore;
 	}
 }
 
