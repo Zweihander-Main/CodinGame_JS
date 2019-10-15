@@ -1,6 +1,12 @@
+# Coders Strike Back
+
+# Unleash the Geek
+
     	// this will require decoupling memory move cell and memory dig cell
     	// will need logic for arrived but wanted to dig at different cell
     	// trying it with equal weighting per adjacent cells?
+
+Radar sprayed, radar edge, radar would be sprayed all should have algos for them that are efficient
 
 Dig latches should happen on cells
 

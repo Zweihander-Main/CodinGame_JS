@@ -1,10 +1,25 @@
 const path = require('path');
 
 module.exports = {
-	entry: './unleashTheGeek/main.js',
+	entry: {
+		unleashTheGeek: './unleashTheGeek/main.js',
+		codersStrikeBack: './codersStrikeBack/main.ts',
+	},
+	module: {
+		rules: [
+			{
+				test: /\.tsx?$/,
+				use: 'ts-loader',
+				exclude: /node_modules/,
+			},
+		],
+	},
+	resolve: {
+		extensions: ['.ts', '.js'],
+	},
 	output: {
 		path: path.resolve(__dirname, 'build'),
-		filename: 'unleashTheGeek.js',
+		filename: '[name].js',
 	},
 	mode: 'none',
 	devtool: 'source-map',
