@@ -1,5 +1,3 @@
-# Coders Strike Back
-
 # Unleash the Geek
 
     	// this will require decoupling memory move cell and memory dig cell

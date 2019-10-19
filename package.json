@@ -1,5 +1,5 @@
 {
-	"name": "codingame",
+	"name": "codingame_js",
 	"version": "0.0.1",
 	"description": "",
 	"keywords": "",
@@ -34,19 +34,13 @@
 	"eslintConfig": {
 		"env": {
 			"node": true,
-			"jest/globals": true,
 			"es6": true
 		},
 		"parserOptions": {
-			"ecmaVersion": 2019,
-			"sourceType": "module"
+			"ecmaVersion": 2019
 		},
 		"plugins": [
 			"jest"
-		],
-		"extends": [
-			"eslint:recommended",
-			"plugin:prettier/recommended"
 		],
 		"rules": {
 			"quotes": [
@@ -62,10 +56,6 @@
 				"error",
 				"smart-tabs"
 			]
-		},
-		"globals": {
-			"readline": true,
-			"printTime": true
 		}
 	},
 	"jshintConfig": {
@@ -134,7 +124,6 @@
 		"jest-mock-console": "^0.4.2",
 		"prettier": "^1.17.0",
 		"ts-loader": "^6.2.0",
-		"typescript": "^3.6.4",
 		"webpack": "^4.41.0",
 		"webpack-cli": "^3.3.9"
 	}

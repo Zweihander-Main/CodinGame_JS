@@ -3,7 +3,6 @@ const path = require('path');
 module.exports = {
 	entry: {
 		unleashTheGeek: './unleashTheGeek/main.js',
-		codersStrikeBack: './codersStrikeBack/main.ts',
 	},
 	module: {
 		rules: [
