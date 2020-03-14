@@ -9,6 +9,7 @@ Other languages:
 ## List of projects
 
 [Unleash The Geek](./unleashTheGeek/) -- Oct, 2019 contest. [Details here.](https://www.codingame.com/contests/unleash-the-geek-amadeus) Hit Silver league. This was a time-restricted competition during a busy week so I intend on having a second go at the code if/when it opens back up.
+[Puzzles](./puzzles) -- Divided by difficulty. Not necessarily optimal solutions for every one but they pass.
 
 ### Tech stack:
 
