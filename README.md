@@ -8,7 +8,7 @@ Other languages:
 
 ## List of projects
 
-[Unleash The Geek](./unleashTheGeek/) -- Oct, 2019 contest. [Details here.](https://www.codingame.com/contests/unleash-the-geek-amadeus) Hit Silver league.
+[Unleash The Geek](./unleashTheGeek/) -- Oct, 2019 contest. [Details here.](https://www.codingame.com/contests/unleash-the-geek-amadeus) Hit Silver league. This was a time-restricted competition during a busy week so I intend on having a second go at the code if/when it opens back up.
 
 ### Tech stack:
 
@@ -34,7 +34,8 @@ Other languages:
 
 ### Notes
 
--   This was intended to be used with the [CodinGame Sync](https://chrome.google.com/webstore/detail/codingame-sync-ext/ldjnbdgcceengbjkalemckffhaajkehd) extension & app
+-   This was intended to be used with the [CodinGame Sync](https://chrome.google.com/webstore/detail/codingame-sync-ext/ldjnbdgcceengbjkalemckffhaajkehd) extension & app. I point the output at the pertinent flatfile generated in the build folder after running build/watch.
+-   Code was run against the online tester as well as [cd-brutaltester](https://github.com/dreignier/cg-brutaltester) with local versions of the contests.
 
 ## Available for Hire
 
